@@ -1,15 +1,15 @@
-# 🔋 Batteries-Included Development DevPod
+# 🔋 Batteries-Included Development DevPod modified
 
-This branch contains a **fully-loaded** development environment with Docker-in-Docker, Node.js, Claude Flow, AI Swarm orchestration, and automatic Claude Code launch capabilities.
+# Original Batteries-Included Development DevPod https://github.com/jedarden/agentists-quickstart/tree/workspace/batteries-included 
+
+This repo contains a **fully-loaded** development environment with Docker-in-Docker, Node.js, Claude Flow, AI Swarm orchestration, and automatic Claude Code launch capabilities.
 
 ## 🚀 Quick Start with DevPod
 
 ```bash
 # Launch the batteries-included environment
-devpod up https://github.com/jedarden/agentists-quickstart@workspace/batteries-included
+devpod up https://github.com/proffesor-for-testing/cf-devpod.git
 
-# Alternative: Using git URL fragment
-devpod up https://github.com/jedarden/agentists-quickstart.git#workspace/batteries-included
 ```
 
 ## ⚡ One-Command Launch
@@ -17,6 +17,7 @@ devpod up https://github.com/jedarden/agentists-quickstart.git#workspace/batteri
 After the DevPod starts, simply run:
 
 ```bash
+chmod +x start.sh
 ./start.sh
 ```
 

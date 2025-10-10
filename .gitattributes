@@ -1,0 +1,25 @@
+# Ensure shell scripts always have LF line endings (Fix for Issue #6)
+*.sh text eol=lf
+*.bash text eol=lf
+*.bashrc text eol=lf
+*.bash_profile text eol=lf
+
+# Ensure config files have LF line endings
+*.json text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.toml text eol=lf
+*.md text eol=lf
+
+# DevContainer files must have LF
+.devcontainer/* text eol=lf
+
+# Docker files
+Dockerfile text eol=lf
+docker-compose.yml text eol=lf
+docker-compose.yaml text eol=lf
+
+# Git config files
+.gitignore text eol=lf
+.gitattributes text eol=lf
+.gitconfig text eol=lf

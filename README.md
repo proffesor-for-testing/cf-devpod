@@ -127,7 +127,7 @@ cat .devcontainer/installation-report.md
 
 If you prefer to use VS Code directly:
 
-1. Clone this branch: `git clone -b workspace/basic https://github.com/proffesor-for-testing/cf-devpod.git`
+1. Clone this repo: `git clone https://github.com/proffesor-for-testing/cf-devpod.git`
 2. Open in VS Code
 3. Install the Dev Containers extension
 4. Click "Reopen in Container" when prompted

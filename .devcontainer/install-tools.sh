@@ -317,7 +317,7 @@ else
     record_status "claude-monitor" "❌ Failed" "UV not available - install UV first"
 fi
 
-# Install claude-flow@alpha
+# Install claude-flow@latest
 echo "### 🌊 Claude Flow Installation" >> "$REPORT_FILE"
 if command_exists npm; then
     # Check if claude-flow is already installed
@@ -326,12 +326,12 @@ if command_exists npm; then
         record_status "claude-flow" "✅ Already Installed" "Version: $FLOW_VERSION"
         echo "claude-flow is already installed"
     else
-        echo "Installing claude-flow@alpha via npm..."
-        if npm install -g claude-flow@alpha 2>/dev/null; then
+        echo "Installing claude-flow@latest via npm..."
+        if npm install -g claude-flow@latest 2>/dev/null; then
             record_status "claude-flow" "✅ Success" "Installed via npm (alpha)"
         elif command_exists sudo; then
             echo "Retrying claude-flow installation with sudo..."
-            if sudo npm install -g claude-flow@alpha 2>/dev/null; then
+            if sudo npm install -g claude-flow@latest 2>/dev/null; then
                 record_status "claude-flow" "✅ Success" "Installed via npm with sudo (alpha)"
             else
                 record_status "claude-flow" "❌ Failed" "npm installation failed"
@@ -554,12 +554,12 @@ if [ $FAILED_ITEMS -gt 0 ]; then
         echo "" >> "$REPORT_FILE"
         echo "**Install Claude Flow (alpha version):**" >> "$REPORT_FILE"
         echo '```bash' >> "$REPORT_FILE"
-        echo "npm install -g claude-flow@alpha" >> "$REPORT_FILE"
+        echo "npm install -g claude-flow@latest" >> "$REPORT_FILE"
         echo '```' >> "$REPORT_FILE"
         echo "" >> "$REPORT_FILE"
         echo "**If you get permission errors, try:**" >> "$REPORT_FILE"
         echo '```bash' >> "$REPORT_FILE"
-        echo "sudo npm install -g claude-flow@alpha" >> "$REPORT_FILE"
+        echo "sudo npm install -g claude-flow@latest" >> "$REPORT_FILE"
         echo '```' >> "$REPORT_FILE"
         echo "" >> "$REPORT_FILE"
         echo "**For more information, visit:** https://github.com/ruvnet/claude-flow" >> "$REPORT_FILE"

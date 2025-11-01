@@ -6,7 +6,7 @@
     "--memory=8g",
     "--memory-swap=12g",
     "--memory-reservation=4g",
-    "--cpus=4",
+    "--cpus=2",
     "--oom-kill-disable=false",
     "--memory-swappiness=60"
   ],
@@ -18,7 +18,7 @@
   },
   "hostRequirements": {
     "memory": "8gb",
-    "cpus": 4,
+    "cpus": 2,
     "storage": "48gb"
   },
   "customizations": {

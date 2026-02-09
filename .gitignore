@@ -79,3 +79,5 @@ hive-mind-prompt-*.txt
 .claude/
 .claude-flow/
 memory/
+.agentic-qe/
+.aqe/

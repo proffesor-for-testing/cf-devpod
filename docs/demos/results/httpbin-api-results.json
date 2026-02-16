@@ -1,0 +1,196 @@
+{
+  "timestamp": "2026-02-16T10:23:35.666Z",
+  "target": "https://httpbin.org",
+  "total": 31,
+  "passed": 31,
+  "failed": 0,
+  "passRate": "100.0%",
+  "results": [
+    {
+      "name": "GET /get - echoes args, headers, origin, url",
+      "status": "PASS",
+      "elapsed": 422,
+      "error": null
+    },
+    {
+      "name": "POST /post - JSON body echoed",
+      "status": "PASS",
+      "elapsed": 359,
+      "error": null
+    },
+    {
+      "name": "PUT /put - method handling",
+      "status": "PASS",
+      "elapsed": 91,
+      "error": null
+    },
+    {
+      "name": "PATCH /patch - method handling",
+      "status": "PASS",
+      "elapsed": 160,
+      "error": null
+    },
+    {
+      "name": "DELETE /delete - method handling",
+      "status": "PASS",
+      "elapsed": 91,
+      "error": null
+    },
+    {
+      "name": "GET /status/200 - returns 200",
+      "status": "PASS",
+      "elapsed": 90,
+      "error": null
+    },
+    {
+      "name": "GET /status/201 - returns 201",
+      "status": "PASS",
+      "elapsed": 183,
+      "error": null
+    },
+    {
+      "name": "GET /status/204 - returns 204",
+      "status": "PASS",
+      "elapsed": 89,
+      "error": null
+    },
+    {
+      "name": "GET /status/301 - returns 301",
+      "status": "PASS",
+      "elapsed": 89,
+      "error": null
+    },
+    {
+      "name": "GET /status/400 - returns 400",
+      "status": "PASS",
+      "elapsed": 89,
+      "error": null
+    },
+    {
+      "name": "GET /status/401 - returns 401",
+      "status": "PASS",
+      "elapsed": 90,
+      "error": null
+    },
+    {
+      "name": "GET /status/403 - returns 403",
+      "status": "PASS",
+      "elapsed": 219,
+      "error": null
+    },
+    {
+      "name": "GET /status/404 - returns 404",
+      "status": "PASS",
+      "elapsed": 90,
+      "error": null
+    },
+    {
+      "name": "GET /status/500 - returns 500",
+      "status": "PASS",
+      "elapsed": 118,
+      "error": null
+    },
+    {
+      "name": "GET /headers - custom headers echoed",
+      "status": "PASS",
+      "elapsed": 91,
+      "error": null
+    },
+    {
+      "name": "GET /ip - returns origin IP",
+      "status": "PASS",
+      "elapsed": 89,
+      "error": null
+    },
+    {
+      "name": "GET /user-agent - returns user-agent",
+      "status": "PASS",
+      "elapsed": 211,
+      "error": null
+    },
+    {
+      "name": "GET /json - JSON response",
+      "status": "PASS",
+      "elapsed": 96,
+      "error": null
+    },
+    {
+      "name": "GET /html - HTML response",
+      "status": "PASS",
+      "elapsed": 90,
+      "error": null
+    },
+    {
+      "name": "GET /xml - XML response",
+      "status": "PASS",
+      "elapsed": 90,
+      "error": null
+    },
+    {
+      "name": "GET /encoding/utf8 - UTF-8 content",
+      "status": "PASS",
+      "elapsed": 176,
+      "error": null
+    },
+    {
+      "name": "GET /delay/1 - ~1s delay measured",
+      "status": "PASS",
+      "elapsed": 1444,
+      "error": null
+    },
+    {
+      "name": "GET /bytes/1024 - response length 1024",
+      "status": "PASS",
+      "elapsed": 140,
+      "error": null
+    },
+    {
+      "name": "GET /uuid - valid UUID format",
+      "status": "PASS",
+      "elapsed": 91,
+      "error": null
+    },
+    {
+      "name": "GET /base64/SFRUUEJJTiBpcyBhd2Vzb21l - decoded response",
+      "status": "PASS",
+      "elapsed": 90,
+      "error": null
+    },
+    {
+      "name": "GET /redirect/3 (manual) - returns 302",
+      "status": "PASS",
+      "elapsed": 89,
+      "error": null
+    },
+    {
+      "name": "GET /absolute-redirect/2 - follows to 200",
+      "status": "PASS",
+      "elapsed": 464,
+      "error": null
+    },
+    {
+      "name": "GET /relative-redirect/2 - follows to 200",
+      "status": "PASS",
+      "elapsed": 370,
+      "error": null
+    },
+    {
+      "name": "GET /basic-auth/user/pass - correct credentials",
+      "status": "PASS",
+      "elapsed": 90,
+      "error": null
+    },
+    {
+      "name": "GET /basic-auth/user/pass - no credentials returns 401",
+      "status": "PASS",
+      "elapsed": 90,
+      "error": null
+    },
+    {
+      "name": "GET /bearer - with Bearer token",
+      "status": "PASS",
+      "elapsed": 91,
+      "error": null
+    }
+  ]
+}

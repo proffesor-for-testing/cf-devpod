@@ -1,0 +1,244 @@
+{
+  "timestamp": "2026-02-16T10:14:09.621Z",
+  "tool": "AQE v3 Visual Tester",
+  "browser": "Chromium (Playwright 1.58.2)",
+  "viewports": [
+    {
+      "name": "desktop",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "name": "tablet",
+      "width": 768,
+      "height": 1024
+    },
+    {
+      "name": "mobile",
+      "width": 375,
+      "height": 812
+    }
+  ],
+  "users": [
+    "standard",
+    "visual"
+  ],
+  "pages": [
+    "login",
+    "inventory",
+    "product-detail",
+    "cart"
+  ],
+  "screenshots": {
+    "standard": {
+      "desktop": {
+        "login": {
+          "path": "/workspaces/cf-devpod/docs/demos/results/saucedemo/standard_desktop_login.png",
+          "timestamp": "2026-02-16T10:13:47.217Z"
+        },
+        "inventory": {
+          "path": "/workspaces/cf-devpod/docs/demos/results/saucedemo/standard_desktop_inventory.png",
+          "timestamp": "2026-02-16T10:13:47.472Z"
+        },
+        "product-detail": {
+          "path": "/workspaces/cf-devpod/docs/demos/results/saucedemo/standard_desktop_product-detail.png",
+          "timestamp": "2026-02-16T10:13:47.582Z"
+        },
+        "cart": {
+          "path": "/workspaces/cf-devpod/docs/demos/results/saucedemo/standard_desktop_cart.png",
+          "timestamp": "2026-02-16T10:13:47.731Z"
+        }
+      },
+      "tablet": {
+        "login": {
+          "path": "/workspaces/cf-devpod/docs/demos/results/saucedemo/standard_tablet_login.png",
+          "timestamp": "2026-02-16T10:13:49.067Z"
+        },
+        "inventory": {
+          "path": "/workspaces/cf-devpod/docs/demos/results/saucedemo/standard_tablet_inventory.png",
+          "timestamp": "2026-02-16T10:13:49.260Z"
+        },
+        "product-detail": {
+          "path": "/workspaces/cf-devpod/docs/demos/results/saucedemo/standard_tablet_product-detail.png",
+          "timestamp": "2026-02-16T10:13:49.341Z"
+        },
+        "cart": {
+          "path": "/workspaces/cf-devpod/docs/demos/results/saucedemo/standard_tablet_cart.png",
+          "timestamp": "2026-02-16T10:13:49.454Z"
+        }
+      },
+      "mobile": {
+        "login": {
+          "path": "/workspaces/cf-devpod/docs/demos/results/saucedemo/standard_mobile_login.png",
+          "timestamp": "2026-02-16T10:13:50.771Z"
+        },
+        "inventory": {
+          "path": "/workspaces/cf-devpod/docs/demos/results/saucedemo/standard_mobile_inventory.png",
+          "timestamp": "2026-02-16T10:13:51.010Z"
+        },
+        "product-detail": {
+          "path": "/workspaces/cf-devpod/docs/demos/results/saucedemo/standard_mobile_product-detail.png",
+          "timestamp": "2026-02-16T10:13:51.120Z"
+        },
+        "cart": {
+          "path": "/workspaces/cf-devpod/docs/demos/results/saucedemo/standard_mobile_cart.png",
+          "timestamp": "2026-02-16T10:13:51.224Z"
+        }
+      }
+    },
+    "visual": {
+      "desktop": {
+        "login": {
+          "path": "/workspaces/cf-devpod/docs/demos/results/saucedemo/visual_desktop_login.png",
+          "timestamp": "2026-02-16T10:13:53.058Z"
+        },
+        "inventory": {
+          "path": "/workspaces/cf-devpod/docs/demos/results/saucedemo/visual_desktop_inventory.png",
+          "timestamp": "2026-02-16T10:13:53.950Z"
+        },
+        "product-detail": {
+          "path": "/workspaces/cf-devpod/docs/demos/results/saucedemo/visual_desktop_product-detail.png",
+          "timestamp": "2026-02-16T10:13:54.252Z"
+        },
+        "cart": {
+          "path": "/workspaces/cf-devpod/docs/demos/results/saucedemo/visual_desktop_cart.png",
+          "timestamp": "2026-02-16T10:13:54.587Z"
+        }
+      },
+      "tablet": {
+        "login": {
+          "path": "/workspaces/cf-devpod/docs/demos/results/saucedemo/visual_tablet_login.png",
+          "timestamp": "2026-02-16T10:13:56.252Z"
+        },
+        "inventory": {
+          "path": "/workspaces/cf-devpod/docs/demos/results/saucedemo/visual_tablet_inventory.png",
+          "timestamp": "2026-02-16T10:13:57.853Z"
+        },
+        "product-detail": {
+          "path": "/workspaces/cf-devpod/docs/demos/results/saucedemo/visual_tablet_product-detail.png",
+          "timestamp": "2026-02-16T10:13:58.264Z"
+        },
+        "cart": {
+          "path": "/workspaces/cf-devpod/docs/demos/results/saucedemo/visual_tablet_cart.png",
+          "timestamp": "2026-02-16T10:13:58.659Z"
+        }
+      },
+      "mobile": {
+        "login": {
+          "path": "/workspaces/cf-devpod/docs/demos/results/saucedemo/visual_mobile_login.png",
+          "timestamp": "2026-02-16T10:14:00.552Z"
+        },
+        "inventory": {
+          "path": "/workspaces/cf-devpod/docs/demos/results/saucedemo/visual_mobile_inventory.png",
+          "timestamp": "2026-02-16T10:14:02.157Z"
+        },
+        "product-detail": {
+          "path": "/workspaces/cf-devpod/docs/demos/results/saucedemo/visual_mobile_product-detail.png",
+          "timestamp": "2026-02-16T10:14:02.560Z"
+        },
+        "cart": {
+          "path": "/workspaces/cf-devpod/docs/demos/results/saucedemo/visual_mobile_cart.png",
+          "timestamp": "2026-02-16T10:14:02.952Z"
+        }
+      }
+    }
+  },
+  "comparisons": {
+    "desktop_login": {
+      "totalPixels": 2073600,
+      "diffPixels": 0,
+      "diffPercentage": 0,
+      "diffImagePath": "/workspaces/cf-devpod/docs/demos/results/saucedemo/diff_desktop_login.png",
+      "sizeA": "1920x1080",
+      "sizeB": "1920x1080"
+    },
+    "tablet_login": {
+      "totalPixels": 786432,
+      "diffPixels": 0,
+      "diffPercentage": 0,
+      "diffImagePath": "/workspaces/cf-devpod/docs/demos/results/saucedemo/diff_tablet_login.png",
+      "sizeA": "768x1024",
+      "sizeB": "768x1024"
+    },
+    "mobile_login": {
+      "totalPixels": 304500,
+      "diffPixels": 0,
+      "diffPercentage": 0,
+      "diffImagePath": "/workspaces/cf-devpod/docs/demos/results/saucedemo/diff_mobile_login.png",
+      "sizeA": "375x812",
+      "sizeB": "375x812"
+    },
+    "desktop_inventory": {
+      "totalPixels": 2131200,
+      "diffPixels": 42849,
+      "diffPercentage": 2.01,
+      "diffImagePath": "/workspaces/cf-devpod/docs/demos/results/saucedemo/diff_desktop_inventory.png",
+      "sizeA": "1920x1110",
+      "sizeB": "1920x1110"
+    },
+    "tablet_inventory": {
+      "totalPixels": 1440000,
+      "diffPixels": 62415,
+      "diffPercentage": 4.33,
+      "diffImagePath": "/workspaces/cf-devpod/docs/demos/results/saucedemo/diff_tablet_inventory.png",
+      "sizeA": "768x1875",
+      "sizeB": "768x1875"
+    },
+    "mobile_inventory": {
+      "totalPixels": 1970250,
+      "diffPixels": 798302,
+      "diffPercentage": 40.52,
+      "diffImagePath": "/workspaces/cf-devpod/docs/demos/results/saucedemo/diff_mobile_inventory.png",
+      "sizeA": "375x5254",
+      "sizeB": "375x5040"
+    },
+    "desktop_product-detail": {
+      "totalPixels": 2073600,
+      "diffPixels": 657,
+      "diffPercentage": 0.03,
+      "diffImagePath": "/workspaces/cf-devpod/docs/demos/results/saucedemo/diff_desktop_product-detail.png",
+      "sizeA": "1920x1080",
+      "sizeB": "1920x1080"
+    },
+    "tablet_product-detail": {
+      "totalPixels": 786432,
+      "diffPixels": 657,
+      "diffPercentage": 0.08,
+      "diffImagePath": "/workspaces/cf-devpod/docs/demos/results/saucedemo/diff_tablet_product-detail.png",
+      "sizeA": "768x1024",
+      "sizeB": "768x1024"
+    },
+    "mobile_product-detail": {
+      "totalPixels": 434625,
+      "diffPixels": 657,
+      "diffPercentage": 0.15,
+      "diffImagePath": "/workspaces/cf-devpod/docs/demos/results/saucedemo/diff_mobile_product-detail.png",
+      "sizeA": "375x1159",
+      "sizeB": "375x1159"
+    },
+    "desktop_cart": {
+      "totalPixels": 2073600,
+      "diffPixels": 15252,
+      "diffPercentage": 0.74,
+      "diffImagePath": "/workspaces/cf-devpod/docs/demos/results/saucedemo/diff_desktop_cart.png",
+      "sizeA": "1920x1080",
+      "sizeB": "1920x1080"
+    },
+    "tablet_cart": {
+      "totalPixels": 786432,
+      "diffPixels": 48816,
+      "diffPercentage": 6.21,
+      "diffImagePath": "/workspaces/cf-devpod/docs/demos/results/saucedemo/diff_tablet_cart.png",
+      "sizeA": "768x1024",
+      "sizeB": "768x1024"
+    },
+    "mobile_cart": {
+      "totalPixels": 318750,
+      "diffPixels": 60226,
+      "diffPercentage": 18.89,
+      "diffImagePath": "/workspaces/cf-devpod/docs/demos/results/saucedemo/diff_mobile_cart.png",
+      "sizeA": "375x850",
+      "sizeB": "375x812"
+    }
+  }
+}

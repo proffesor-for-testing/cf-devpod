@@ -1,0 +1,4956 @@
+[
+  {
+    "id": 1,
+    "category": "Input Boundaries",
+    "description": "firstname length=0",
+    "input": {
+      "firstname": ""
+    },
+    "expected": "Should reject or sanitize",
+    "actual": {
+      "status": 200,
+      "bookingid": 1278
+    },
+    "verdict": "INTERESTING"
+  },
+  {
+    "id": 2,
+    "category": "Input Boundaries",
+    "description": "firstname length=1",
+    "input": {
+      "firstname": "m"
+    },
+    "expected": "Should accept (200)",
+    "actual": {
+      "status": 200,
+      "bookingid": 1280
+    },
+    "verdict": "PASS"
+  },
+  {
+    "id": 3,
+    "category": "Input Boundaries",
+    "description": "firstname length=5",
+    "input": {
+      "firstname": "ZyeMh"
+    },
+    "expected": "Should accept (200)",
+    "actual": {
+      "status": 200,
+      "bookingid": 1281
+    },
+    "verdict": "PASS"
+  },
+  {
+    "id": 4,
+    "category": "Input Boundaries",
+    "description": "firstname length=100",
+    "input": {
+      "firstname": "lX8LEdeHpa9d0Sx3mWqz7AH6YAu9Wb..."
+    },
+    "expected": "Should accept (200)",
+    "actual": {
+      "status": 200,
+      "bookingid": 1282
+    },
+    "verdict": "PASS"
+  },
+  {
+    "id": 5,
+    "category": "Input Boundaries",
+    "description": "firstname length=1000",
+    "input": {
+      "firstname": "CzsLiYPwkO3j9aqRFlzFgLYDsg1mY5..."
+    },
+    "expected": "Should accept (200)",
+    "actual": {
+      "status": 200,
+      "bookingid": 1284
+    },
+    "verdict": "PASS"
+  },
+  {
+    "id": 6,
+    "category": "Input Boundaries",
+    "description": "firstname length=10000",
+    "input": {
+      "firstname": "DGKfVkQokmlXhCiwmC0FQt29BfG7ZO..."
+    },
+    "expected": "Should reject or sanitize",
+    "actual": {
+      "status": 200,
+      "bookingid": 1286
+    },
+    "verdict": "INTERESTING"
+  },
+  {
+    "id": 7,
+    "category": "Input Boundaries",
+    "description": "lastname length=0",
+    "input": {
+      "lastname": ""
+    },
+    "expected": "Should reject empty",
+    "actual": {
+      "status": 200,
+      "bookingid": 1289
+    },
+    "verdict": "INTERESTING"
+  },
+  {
+    "id": 8,
+    "category": "Input Boundaries",
+    "description": "lastname length=10000",
+    "input": {
+      "lastname": "6sPI82zeqMWNoYM9953IlSWJLePnkH..."
+    },
+    "expected": "Should reject or truncate huge",
+    "actual": {
+      "status": 200,
+      "bookingid": 1290
+    },
+    "verdict": "INTERESTING"
+  },
+  {
+    "id": 9,
+    "category": "Input Boundaries",
+    "description": "totalprice=0",
+    "input": {
+      "totalprice": 0
+    },
+    "expected": "Should accept",
+    "actual": {
+      "status": 200,
+      "storedPrice": 0
+    },
+    "verdict": "PASS"
+  },
+  {
+    "id": 10,
+    "category": "Input Boundaries",
+    "description": "totalprice=-1",
+    "input": {
+      "totalprice": -1
+    },
+    "expected": "Should reject or coerce",
+    "actual": {
+      "status": 200,
+      "storedPrice": -1
+    },
+    "verdict": "INTERESTING"
+  },
+  {
+    "id": 11,
+    "category": "Input Boundaries",
+    "description": "totalprice=-999",
+    "input": {
+      "totalprice": -999
+    },
+    "expected": "Should reject or coerce",
+    "actual": {
+      "status": 200,
+      "storedPrice": -999
+    },
+    "verdict": "INTERESTING"
+  },
+  {
+    "id": 12,
+    "category": "Input Boundaries",
+    "description": "totalprice=0.001",
+    "input": {
+      "totalprice": 0.001
+    },
+    "expected": "Should accept",
+    "actual": {
+      "status": 200,
+      "storedPrice": 0
+    },
+    "verdict": "PASS"
+  },
+  {
+    "id": 13,
+    "category": "Input Boundaries",
+    "description": "totalprice=0.5",
+    "input": {
+      "totalprice": 0.5
+    },
+    "expected": "Should accept",
+    "actual": {
+      "status": 200,
+      "storedPrice": 0
+    },
+    "verdict": "PASS"
+  },
+  {
+    "id": 14,
+    "category": "Input Boundaries",
+    "description": "totalprice=1",
+    "input": {
+      "totalprice": 1
+    },
+    "expected": "Should accept",
+    "actual": {
+      "status": 200,
+      "storedPrice": 1
+    },
+    "verdict": "PASS"
+  },
+  {
+    "id": 15,
+    "category": "Input Boundaries",
+    "description": "totalprice=999999",
+    "input": {
+      "totalprice": 999999
+    },
+    "expected": "Should accept",
+    "actual": {
+      "status": 200,
+      "storedPrice": 999999
+    },
+    "verdict": "PASS"
+  },
+  {
+    "id": 16,
+    "category": "Input Boundaries",
+    "description": "totalprice=9999999999",
+    "input": {
+      "totalprice": 9999999999
+    },
+    "expected": "Should accept",
+    "actual": {
+      "status": 200,
+      "storedPrice": 9999999999
+    },
+    "verdict": "PASS"
+  },
+  {
+    "id": 17,
+    "category": "Input Boundaries",
+    "description": "totalprice=NaN",
+    "input": {
+      "totalprice": null
+    },
+    "expected": "Should reject or coerce",
+    "actual": {
+      "status": 500
+    },
+    "verdict": "FAIL"
+  },
+  {
+    "id": 18,
+    "category": "Input Boundaries",
+    "description": "totalprice=Infinity",
+    "input": {
+      "totalprice": null
+    },
+    "expected": "Should reject or coerce",
+    "actual": {
+      "status": 500
+    },
+    "verdict": "FAIL"
+  },
+  {
+    "id": 19,
+    "category": "Input Boundaries",
+    "description": "totalprice=-Infinity",
+    "input": {
+      "totalprice": null
+    },
+    "expected": "Should reject or coerce",
+    "actual": {
+      "status": 500
+    },
+    "verdict": "FAIL"
+  },
+  {
+    "id": 20,
+    "category": "Input Boundaries",
+    "description": "totalprice=null",
+    "input": {
+      "totalprice": null
+    },
+    "expected": "Should reject or coerce",
+    "actual": {
+      "status": 500
+    },
+    "verdict": "FAIL"
+  },
+  {
+    "id": 21,
+    "category": "Input Boundaries",
+    "description": "totalprice=free",
+    "input": {
+      "totalprice": "free"
+    },
+    "expected": "Should reject or coerce",
+    "actual": {
+      "status": 200,
+      "storedPrice": null
+    },
+    "verdict": "INTERESTING"
+  },
+  {
+    "id": 22,
+    "category": "Input Boundaries",
+    "description": "totalprice=",
+    "input": {
+      "totalprice": ""
+    },
+    "expected": "Should reject or coerce",
+    "actual": {
+      "status": 200,
+      "storedPrice": null
+    },
+    "verdict": "INTERESTING"
+  },
+  {
+    "id": 23,
+    "category": "Input Boundaries",
+    "description": "depositpaid=true",
+    "input": {
+      "depositpaid": true
+    },
+    "expected": "Should accept",
+    "actual": {
+      "status": 200,
+      "stored": true
+    },
+    "verdict": "PASS"
+  },
+  {
+    "id": 24,
+    "category": "Input Boundaries",
+    "description": "depositpaid=false",
+    "input": {
+      "depositpaid": false
+    },
+    "expected": "Should accept",
+    "actual": {
+      "status": 200,
+      "stored": false
+    },
+    "verdict": "PASS"
+  },
+  {
+    "id": 25,
+    "category": "Input Boundaries",
+    "description": "depositpaid=\"true\"",
+    "input": {
+      "depositpaid": "true"
+    },
+    "expected": "Should reject or coerce to boolean",
+    "actual": {
+      "status": 200,
+      "stored": true
+    },
+    "verdict": "INTERESTING"
+  },
+  {
+    "id": 26,
+    "category": "Input Boundaries",
+    "description": "depositpaid=\"false\"",
+    "input": {
+      "depositpaid": "false"
+    },
+    "expected": "Should reject or coerce to boolean",
+    "actual": {
+      "status": 200,
+      "stored": true
+    },
+    "verdict": "INTERESTING"
+  },
+  {
+    "id": 27,
+    "category": "Input Boundaries",
+    "description": "depositpaid=0",
+    "input": {
+      "depositpaid": 0
+    },
+    "expected": "Should reject or coerce to boolean",
+    "actual": {
+      "status": 200,
+      "stored": false
+    },
+    "verdict": "INTERESTING"
+  },
+  {
+    "id": 28,
+    "category": "Input Boundaries",
+    "description": "depositpaid=1",
+    "input": {
+      "depositpaid": 1
+    },
+    "expected": "Should reject or coerce to boolean",
+    "actual": {
+      "status": 200,
+      "stored": true
+    },
+    "verdict": "INTERESTING"
+  },
+  {
+    "id": 29,
+    "category": "Input Boundaries",
+    "description": "depositpaid=null",
+    "input": {
+      "depositpaid": null
+    },
+    "expected": "Should reject or coerce to boolean",
+    "actual": {
+      "status": 500
+    },
+    "verdict": "FAIL"
+  },
+  {
+    "id": 30,
+    "category": "Input Boundaries",
+    "description": "depositpaid=\"\"",
+    "input": {
+      "depositpaid": ""
+    },
+    "expected": "Should reject or coerce to boolean",
+    "actual": {
+      "status": 200,
+      "stored": false
+    },
+    "verdict": "INTERESTING"
+  },
+  {
+    "id": 31,
+    "category": "Input Boundaries",
+    "description": "depositpaid=\"yes\"",
+    "input": {
+      "depositpaid": "yes"
+    },
+    "expected": "Should reject or coerce to boolean",
+    "actual": {
+      "status": 200,
+      "stored": true
+    },
+    "verdict": "INTERESTING"
+  },
+  {
+    "id": 32,
+    "category": "Input Boundaries",
+    "description": "depositpaid=[]",
+    "input": {
+      "depositpaid": []
+    },
+    "expected": "Should reject or coerce to boolean",
+    "actual": {
+      "status": 200,
+      "stored": true
+    },
+    "verdict": "INTERESTING"
+  },
+  {
+    "id": 33,
+    "category": "Input Boundaries",
+    "description": "depositpaid={}",
+    "input": {
+      "depositpaid": {}
+    },
+    "expected": "Should reject or coerce to boolean",
+    "actual": {
+      "status": 200,
+      "stored": true
+    },
+    "verdict": "INTERESTING"
+  },
+  {
+    "id": 34,
+    "category": "Input Boundaries",
+    "description": "dates: valid",
+    "input": {
+      "checkin": "2025-01-01",
+      "checkout": "2025-01-02"
+    },
+    "expected": "Should accept",
+    "actual": {
+      "status": 200,
+      "storedDates": {
+        "checkin": "2025-01-01",
+        "checkout": "2025-01-02"
+      }
+    },
+    "verdict": "PASS"
+  },
+  {
+    "id": 35,
+    "category": "Input Boundaries",
+    "description": "dates: empty strings",
+    "input": {
+      "checkin": "",
+      "checkout": ""
+    },
+    "expected": "Should reject invalid dates",
+    "actual": {
+      "status": 200,
+      "storedDates": {
+        "checkin": "0NaN-aN-aN",
+        "checkout": "0NaN-aN-aN"
+      }
+    },
+    "verdict": "INTERESTING"
+  },
+  {
+    "id": 36,
+    "category": "Input Boundaries",
+    "description": "dates: epoch dates",
+    "input": {
+      "checkin": "1970-01-01",
+      "checkout": "1970-01-02"
+    },
+    "expected": "Should accept",
+    "actual": {
+      "status": 200,
+      "storedDates": {
+        "checkin": "1970-01-01",
+        "checkout": "1970-01-02"
+      }
+    },
+    "verdict": "PASS"
+  },
+  {
+    "id": 37,
+    "category": "Input Boundaries",
+    "description": "dates: year 9999",
+    "input": {
+      "checkin": "9999-12-30",
+      "checkout": "9999-12-31"
+    },
+    "expected": "Should accept",
+    "actual": {
+      "status": 200,
+      "storedDates": {
+        "checkin": "9999-12-30",
+        "checkout": "9999-12-31"
+      }
+    },
+    "verdict": "PASS"
+  },
+  {
+    "id": 38,
+    "category": "Input Boundaries",
+    "description": "dates: garbage strings",
+    "input": {
+      "checkin": "not-a-date",
+      "checkout": "also-not"
+    },
+    "expected": "Should reject invalid dates",
+    "actual": {
+      "status": 200,
+      "storedDates": {
+        "checkin": "0NaN-aN-aN",
+        "checkout": "0NaN-aN-aN"
+      }
+    },
+    "verdict": "INTERESTING"
+  },
+  {
+    "id": 39,
+    "category": "Input Boundaries",
+    "description": "dates: invalid month/day",
+    "input": {
+      "checkin": "2025-13-45",
+      "checkout": "2025-01-99"
+    },
+    "expected": "Should reject invalid dates",
+    "actual": {
+      "status": 200,
+      "storedDates": {
+        "checkin": "0NaN-aN-aN",
+        "checkout": "0NaN-aN-aN"
+      }
+    },
+    "verdict": "INTERESTING"
+  },
+  {
+    "id": 40,
+    "category": "Input Boundaries",
+    "description": "dates: US date format",
+    "input": {
+      "checkin": "01/15/2025",
+      "checkout": "01/16/2025"
+    },
+    "expected": "Should reject invalid dates",
+    "actual": {
+      "status": 200,
+      "storedDates": {
+        "checkin": "2025-01-15",
+        "checkout": "2025-01-16"
+      }
+    },
+    "verdict": "INTERESTING"
+  },
+  {
+    "id": 41,
+    "category": "Input Boundaries",
+    "description": "dates: DD-MM-YYYY",
+    "input": {
+      "checkin": "15-01-2025",
+      "checkout": "16-01-2025"
+    },
+    "expected": "Should reject invalid dates",
+    "actual": {
+      "status": 200,
+      "storedDates": {
+        "checkin": "0NaN-aN-aN",
+        "checkout": "0NaN-aN-aN"
+      }
+    },
+    "verdict": "INTERESTING"
+  },
+  {
+    "id": 42,
+    "category": "Input Boundaries",
+    "description": "dates: natural language",
+    "input": {
+      "checkin": "tomorrow",
+      "checkout": "next week"
+    },
+    "expected": "Should reject invalid dates",
+    "actual": {
+      "status": 200,
+      "storedDates": {
+        "checkin": "0NaN-aN-aN",
+        "checkout": "0NaN-aN-aN"
+      }
+    },
+    "verdict": "INTERESTING"
+  },
+  {
+    "id": 43,
+    "category": "Input Boundaries",
+    "description": "dates: unix timestamps",
+    "input": {
+      "checkin": 1706745600,
+      "checkout": 1706832000
+    },
+    "expected": "Should reject invalid dates",
+    "actual": {
+      "status": 200,
+      "storedDates": {
+        "checkin": "1970-01-20",
+        "checkout": "1970-01-20"
+      }
+    },
+    "verdict": "INTERESTING"
+  },
+  {
+    "id": 44,
+    "category": "Input Boundaries",
+    "description": "dates: null dates",
+    "input": {
+      "checkin": null,
+      "checkout": null
+    },
+    "expected": "Should reject invalid dates",
+    "actual": {
+      "status": 500
+    },
+    "verdict": "PASS"
+  },
+  {
+    "id": 45,
+    "category": "Input Boundaries",
+    "description": "additionalneeds=undefined",
+    "input": {},
+    "expected": "Should accept",
+    "actual": {
+      "status": 200
+    },
+    "verdict": "PASS"
+  },
+  {
+    "id": 46,
+    "category": "Input Boundaries",
+    "description": "additionalneeds=\"\"",
+    "input": {
+      "additionalneeds": ""
+    },
+    "expected": "Should accept",
+    "actual": {
+      "status": 200
+    },
+    "verdict": "PASS"
+  },
+  {
+    "id": 47,
+    "category": "Input Boundaries",
+    "description": "additionalneeds=null",
+    "input": {
+      "additionalneeds": null
+    },
+    "expected": "Should reject non-string",
+    "actual": {
+      "status": 200
+    },
+    "verdict": "INTERESTING"
+  },
+  {
+    "id": 48,
+    "category": "Input Boundaries",
+    "description": "additionalneeds=\"36hFgcrxTG0f8KeJokJN6ZjZnHFNUz5n0ZX0BsPK2LjR0ghXk",
+    "input": {
+      "additionalneeds": "36hFgcrxTG0f8KeJokJN6ZjZnHFNUz"
+    },
+    "expected": "Should accept",
+    "actual": {
+      "status": 200
+    },
+    "verdict": "PASS"
+  },
+  {
+    "id": 49,
+    "category": "Input Boundaries",
+    "description": "additionalneeds=12345",
+    "input": {
+      "additionalneeds": 12345
+    },
+    "expected": "Should reject non-string",
+    "actual": {
+      "status": 200
+    },
+    "verdict": "INTERESTING"
+  },
+  {
+    "id": 50,
+    "category": "Input Boundaries",
+    "description": "additionalneeds=true",
+    "input": {
+      "additionalneeds": true
+    },
+    "expected": "Should reject non-string",
+    "actual": {
+      "status": 200
+    },
+    "verdict": "INTERESTING"
+  },
+  {
+    "id": 51,
+    "category": "Input Boundaries",
+    "description": "additionalneeds=[\"wifi\",\"pool\"]",
+    "input": {
+      "additionalneeds": [
+        "wifi",
+        "pool"
+      ]
+    },
+    "expected": "Should reject non-string",
+    "actual": {
+      "status": 200
+    },
+    "verdict": "INTERESTING"
+  },
+  {
+    "id": 52,
+    "category": "Input Boundaries",
+    "description": "additionalneeds={\"type\":\"breakfast\"}",
+    "input": {
+      "additionalneeds": {
+        "type": "breakfast"
+      }
+    },
+    "expected": "Should reject non-string",
+    "actual": {
+      "status": 200
+    },
+    "verdict": "INTERESTING"
+  },
+  {
+    "id": 53,
+    "category": "Schema Robustness",
+    "description": "extra unknown fields",
+    "input": {
+      "secret_field": "hack"
+    },
+    "expected": "Should ignore or reject",
+    "actual": {
+      "status": 200
+    },
+    "verdict": "INTERESTING"
+  },
+  {
+    "id": 54,
+    "category": "Schema Robustness",
+    "description": "number as firstname",
+    "input": {
+      "firstname": 12345
+    },
+    "expected": "Should reject wrong type",
+    "actual": {
+      "status": 500,
+      "body": "Internal Server Error"
+    },
+    "verdict": "PASS"
+  },
+  {
+    "id": 55,
+    "category": "Schema Robustness",
+    "description": "boolean as lastname",
+    "input": {
+      "lastname": true
+    },
+    "expected": "Should reject wrong type",
+    "actual": {
+      "status": 500,
+      "body": "Internal Server Error"
+    },
+    "verdict": "PASS"
+  },
+  {
+    "id": 56,
+    "category": "Schema Robustness",
+    "description": "string as totalprice",
+    "input": {
+      "totalprice": "one hundred"
+    },
+    "expected": "Should reject wrong type",
+    "actual": {
+      "status": 200,
+      "body": 1370
+    },
+    "verdict": "INTERESTING"
+  },
+  {
+    "id": 57,
+    "category": "Schema Robustness",
+    "description": "string as depositpaid",
+    "input": {
+      "depositpaid": "maybe"
+    },
+    "expected": "Should reject wrong type",
+    "actual": {
+      "status": 200,
+      "body": 1373
+    },
+    "verdict": "INTERESTING"
+  },
+  {
+    "id": 58,
+    "category": "Schema Robustness",
+    "description": "string as bookingdates",
+    "input": {
+      "bookingdates": "2025-01-01"
+    },
+    "expected": "Should reject wrong type",
+    "actual": {
+      "status": 500,
+      "body": "Internal Server Error"
+    },
+    "verdict": "PASS"
+  },
+  {
+    "id": 59,
+    "category": "Schema Robustness",
+    "description": "null as bookingdates",
+    "input": {
+      "bookingdates": null
+    },
+    "expected": "Should reject wrong type",
+    "actual": {
+      "status": 500,
+      "body": "Internal Server Error"
+    },
+    "verdict": "PASS"
+  },
+  {
+    "id": 60,
+    "category": "Schema Robustness",
+    "description": "firstname=null",
+    "input": {
+      "firstname": null
+    },
+    "expected": "Should reject null for required field",
+    "actual": {
+      "status": 500
+    },
+    "verdict": "PASS"
+  },
+  {
+    "id": 61,
+    "category": "Schema Robustness",
+    "description": "lastname=null",
+    "input": {
+      "lastname": null
+    },
+    "expected": "Should reject null for required field",
+    "actual": {
+      "status": 500
+    },
+    "verdict": "PASS"
+  },
+  {
+    "id": 62,
+    "category": "Schema Robustness",
+    "description": "totalprice=null",
+    "input": {
+      "totalprice": null
+    },
+    "expected": "Should reject null for required field",
+    "actual": {
+      "status": 500
+    },
+    "verdict": "PASS"
+  },
+  {
+    "id": 63,
+    "category": "Schema Robustness",
+    "description": "depositpaid=null",
+    "input": {
+      "depositpaid": null
+    },
+    "expected": "Should reject null for required field",
+    "actual": {
+      "status": 500
+    },
+    "verdict": "PASS"
+  },
+  {
+    "id": 64,
+    "category": "Schema Robustness",
+    "description": "bookingdates=null",
+    "input": {
+      "bookingdates": null
+    },
+    "expected": "Should reject null for required field",
+    "actual": {
+      "status": 500
+    },
+    "verdict": "PASS"
+  },
+  {
+    "id": 65,
+    "category": "Schema Robustness",
+    "description": "additionalneeds=null",
+    "input": {
+      "additionalneeds": null
+    },
+    "expected": "Should reject null for required field",
+    "actual": {
+      "status": 200
+    },
+    "verdict": "INTERESTING"
+  },
+  {
+    "id": 66,
+    "category": "Schema Robustness",
+    "description": "nested objects in primitives",
+    "input": {
+      "firstname": {
+        "inject": true
+      }
+    },
+    "expected": "Should reject",
+    "actual": {
+      "status": 500,
+      "body": "\"Internal Server Error\""
+    },
+    "verdict": "PASS"
+  },
+  {
+    "id": 67,
+    "category": "Schema Robustness",
+    "description": "arrays in primitive fields",
+    "input": {
+      "firstname": [
+        "a",
+        "b"
+      ]
+    },
+    "expected": "Should reject",
+    "actual": {
+      "status": 500
+    },
+    "verdict": "PASS"
+  },
+  {
+    "id": 68,
+    "category": "Schema Robustness",
+    "description": "special string: unicode CJK",
+    "input": {
+      "firstname": "你好世界"
+    },
+    "expected": "Should sanitize or accept safely",
+    "actual": {
+      "status": 200,
+      "storedFirstname": "你好世界"
+    },
+    "verdict": "INTERESTING"
+  },
+  {
+    "id": 69,
+    "category": "Schema Robustness",
+    "description": "special string: emoji",
+    "input": {
+      "firstname": "🚀🔥💥"
+    },
+    "expected": "Should sanitize or accept safely",
+    "actual": {
+      "status": 200,
+      "storedFirstname": "🚀🔥💥"
+    },
+    "verdict": "INTERESTING"
+  },
+  {
+    "id": 70,
+    "category": "Schema Robustness",
+    "description": "special string: HTML/XSS",
+    "input": {
+      "firstname": "<script>alert('xss')</script>"
+    },
+    "expected": "Should sanitize or accept safely",
+    "actual": {
+      "status": 200,
+      "storedFirstname": "<script>alert('xss')</script>"
+    },
+    "verdict": "INTERESTING"
+  },
+  {
+    "id": 71,
+    "category": "Schema Robustness",
+    "description": "special string: SQL injection",
+    "input": {
+      "firstname": "'; DROP TABLE bookings; --"
+    },
+    "expected": "Should sanitize or accept safely",
+    "actual": {
+      "status": 200,
+      "storedFirstname": "'; DROP TABLE bookings; --"
+    },
+    "verdict": "INTERESTING"
+  },
+  {
+    "id": 72,
+    "category": "Schema Robustness",
+    "description": "special string: template injection",
+    "input": {
+      "firstname": "${7*7}"
+    },
+    "expected": "Should sanitize or accept safely",
+    "actual": {
+      "status": 200,
+      "storedFirstname": "${7*7}"
+    },
+    "verdict": "INTERESTING"
+  },
+  {
+    "id": 73,
+    "category": "Schema Robustness",
+    "description": "special string: prototype pollution string",
+    "input": {
+      "firstname": "{{constructor.constructor('return this')()}}"
+    },
+    "expected": "Should sanitize or accept safely",
+    "actual": {
+      "status": 200,
+      "storedFirstname": "{{constructor.constructor('return this')()}}"
+    },
+    "verdict": "INTERESTING"
+  },
+  {
+    "id": 74,
+    "category": "Schema Robustness",
+    "description": "special string: null bytes",
+    "input": {
+      "firstname": "\u0000\u0000\u0000"
+    },
+    "expected": "Should sanitize or accept safely",
+    "actual": {
+      "status": 200,
+      "storedFirstname": "\u0000\u0000\u0000"
+    },
+    "verdict": "INTERESTING"
+  },
+  {
+    "id": 75,
+    "category": "Schema Robustness",
+    "description": "special string: control characters",
+    "input": {
+      "firstname": "\n\r\t"
+    },
+    "expected": "Should sanitize or accept safely",
+    "actual": {
+      "status": 200,
+      "storedFirstname": ""
+    },
+    "verdict": "INTERESTING"
+  },
+  {
+    "id": 76,
+    "category": "Schema Robustness",
+    "description": "special string: 50K char string",
+    "input": {
+      "firstname": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    "expected": "Should sanitize or accept safely",
+    "actual": {
+      "status": 200,
+      "storedFirstname": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    "verdict": "INTERESTING"
+  },
+  {
+    "id": 77,
+    "category": "Booking ID",
+    "description": "GET /booking/0",
+    "input": {
+      "id": 0
+    },
+    "expected": "Should return 404 or 400 for invalid ID",
+    "actual": {
+      "status": 404,
+      "body": "Not Found"
+    },
+    "verdict": "PASS"
+  },
+  {
+    "id": 78,
+    "category": "Booking ID",
+    "description": "GET /booking/-1",
+    "input": {
+      "id": -1
+    },
+    "expected": "Should return 404 or 400 for invalid ID",
+    "actual": {
+      "status": 404,
+      "body": "Not Found"
+    },
+    "verdict": "PASS"
+  },
+  {
+    "id": 79,
+    "category": "Booking ID",
+    "description": "GET /booking/99999999",
+    "input": {
+      "id": 99999999
+    },
+    "expected": "Should return 404 or 400 for invalid ID",
+    "actual": {
+      "status": 404,
+      "body": "Not Found"
+    },
+    "verdict": "PASS"
+  },
+  {
+    "id": 80,
+    "category": "Booking ID",
+    "description": "GET /booking/abc",
+    "input": {
+      "id": "abc"
+    },
+    "expected": "Should return 404 or 400 for invalid ID",
+    "actual": {
+      "status": 404,
+      "body": "Not Found"
+    },
+    "verdict": "PASS"
+  },
+  {
+    "id": 81,
+    "category": "Booking ID",
+    "description": "GET /booking/1.5",
+    "input": {
+      "id": 1.5
+    },
+    "expected": "Should return 404 or 400 for invalid ID",
+    "actual": {
+      "status": 200,
+      "body": {
+        "firstname": "Mark",
+        "lastname": "Ericsson",
+        "totalprice": 820,
+        "depositpaid": false,
+        "bookingdates": {
+          "checkin": "2016-06-26",
+          "checkout": "2025-08-21"
+        }
+      }
+    },
+    "verdict": "INTERESTING"
+  },
+  {
+    "id": 82,
+    "category": "Booking ID",
+    "description": "GET /booking/1; DROP TABLE",
+    "input": {
+      "id": "1; DROP TABLE"
+    },
+    "expected": "Should return 404 or 400 for invalid ID",
+    "actual": {
+      "status": 200,
+      "body": {
+        "firstname": "Mark",
+        "lastname": "Ericsson",
+        "totalprice": 820,
+        "depositpaid": false,
+        "bookingdates": {
+          "checkin": "2016-06-26",
+          "checkout": "2025-08-21"
+        }
+      }
+    },
+    "verdict": "INTERESTING"
+  },
+  {
+    "id": 83,
+    "category": "Booking ID",
+    "description": "GET /booking/",
+    "input": {
+      "id": ""
+    },
+    "expected": "Should return 404 or 400 for invalid ID",
+    "actual": {
+      "status": 200,
+      "body": [
+        {
+          "bookingid": 664
+        },
+        {
+          "bookingid": 1385
+        },
+        {
+          "bookingid": 881
+        },
+        {
+          "bookingid": 1338
+        },
+        {
+          "bookingid": 984
+        },
+        {
+          "bookingid": 796
+        },
+        {
+          "bookingid": 594
+        },
+        {
+          "bookingid": 90
+        },
+        {
+          "bookingid": 1275
+        },
+        {
+          "bookingid": 632
+        },
+        {
+          "bookingid": 822
+        },
+        {
+          "bookingid": 926
+        },
+        {
+          "bookingid": 1237
+        },
+        {
+          "bookingid": 872
+        },
+        {
+          "bookingid": 484
+        },
+        {
+          "bookingid": 276
+        },
+        {
+          "bookingid": 472
+        },
+        {
+          "bookingid": 1216
+        },
+        {
+          "bookingid": 925
+        },
+        {
+          "bookingid": 958
+        },
+        {
+          "bookingid": 400
+        },
+        {
+          "bookingid": 784
+        },
+        {
+          "bookingid": 598
+        },
+        {
+          "bookingid": 158
+        },
+        {
+          "bookingid": 1389
+        },
+        {
+          "bookingid": 38
+        },
+        {
+          "bookingid": 151
+        },
+        {
+          "bookingid": 626
+        },
+        {
+          "bookingid": 689
+        },
+        {
+          "bookingid": 1091
+        },
+        {
+          "bookingid": 1341
+        },
+        {
+          "bookingid": 611
+        },
+        {
+          "bookingid": 1344
+        },
+        {
+          "bookingid": 1179
+        },
+        {
+          "bookingid": 1120
+        },
+        {
+          "bookingid": 1103
+        },
+        {
+          "bookingid": 1357
+        },
+        {
+          "bookingid": 709
+        },
+        {
+          "bookingid": 330
+        },
+        {
+          "bookingid": 1352
+        },
+        {
+          "bookingid": 165
+        },
+        {
+          "bookingid": 1257
+        },
+        {
+          "bookingid": 294
+        },
+        {
+          "bookingid": 1397
+        },
+        {
+          "bookingid": 10
+        },
+        {
+          "bookingid": 800
+        },
+        {
+          "bookingid": 589
+        },
+        {
+          "bookingid": 533
+        },
+        {
+          "bookingid": 418
+        },
+        {
+          "bookingid": 462
+        },
+        {
+          "bookingid": 1307
+        },
+        {
+          "bookingid": 638
+        },
+        {
+          "bookingid": 1052
+        },
+        {
+          "bookingid": 270
+        },
+        {
+          "bookingid": 301
+        },
+        {
+          "bookingid": 847
+        },
+        {
+          "bookingid": 341
+        },
+        {
+          "bookingid": 275
+        },
+        {
+          "bookingid": 930
+        },
+        {
+          "bookingid": 348
+        },
+        {
+          "bookingid": 220
+        },
+        {
+          "bookingid": 631
+        },
+        {
+          "bookingid": 79
+        },
+        {
+          "bookingid": 458
+        },
+        {
+          "bookingid": 16
+        },
+        {
+          "bookingid": 223
+        },
+        {
+          "bookingid": 1298
+        },
+        {
+          "bookingid": 318
+        },
+        {
+          "bookingid": 624
+        },
+        {
+          "bookingid": 116
+        },
+        {
+          "bookingid": 485
+        },
+        {
+          "bookingid": 1285
+        },
+        {
+          "bookingid": 59
+        },
+        {
+          "bookingid": 326
+        },
+        {
+          "bookingid": 189
+        },
+        {
+          "bookingid": 661
+        },
+        {
+          "bookingid": 103
+        },
+        {
+          "bookingid": 1289
+        },
+        {
+          "bookingid": 1245
+        },
+        {
+          "bookingid": 521
+        },
+        {
+          "bookingid": 511
+        },
+        {
+          "bookingid": 378
+        },
+        {
+          "bookingid": 444
+        },
+        {
+          "bookingid": 453
+        },
+        {
+          "bookingid": 946
+        },
+        {
+          "bookingid": 482
+        },
+        {
+          "bookingid": 596
+        },
+        {
+          "bookingid": 1110
+        },
+        {
+          "bookingid": 192
+        },
+        {
+          "bookingid": 658
+        },
+        {
+          "bookingid": 605
+        },
+        {
+          "bookingid": 169
+        },
+        {
+          "bookingid": 403
+        },
+        {
+          "bookingid": 203
+        },
+        {
+          "bookingid": 996
+        },
+        {
+          "bookingid": 247
+        },
+        {
+          "bookingid": 1026
+        },
+        {
+          "bookingid": 674
+        },
+        {
+          "bookingid": 1354
+        },
+        {
+          "bookingid": 1142
+        },
+        {
+          "bookingid": 256
+        },
+        {
+          "bookingid": 703
+        },
+        {
+          "bookingid": 1152
+        },
+        {
+          "bookingid": 548
+        },
+        {
+          "bookingid": 1408
+        },
+        {
+          "bookingid": 933
+        },
+        {
+          "bookingid": 902
+        },
+        {
+          "bookingid": 218
+        },
+        {
+          "bookingid": 911
+        },
+        {
+          "bookingid": 683
+        },
+        {
+          "bookingid": 943
+        },
+        {
+          "bookingid": 837
+        },
+        {
+          "bookingid": 743
+        },
+        {
+          "bookingid": 1165
+        },
+        {
+          "bookingid": 197
+        },
+        {
+          "bookingid": 563
+        },
+        {
+          "bookingid": 912
+        },
+        {
+          "bookingid": 1062
+        },
+        {
+          "bookingid": 336
+        },
+        {
+          "bookingid": 1208
+        },
+        {
+          "bookingid": 1185
+        },
+        {
+          "bookingid": 1015
+        },
+        {
+          "bookingid": 314
+        },
+        {
+          "bookingid": 779
+        },
+        {
+          "bookingid": 652
+        },
+        {
+          "bookingid": 1177
+        },
+        {
+          "bookingid": 853
+        },
+        {
+          "bookingid": 910
+        },
+        {
+          "bookingid": 98
+        },
+        {
+          "bookingid": 186
+        },
+        {
+          "bookingid": 232
+        },
+        {
+          "bookingid": 507
+        },
+        {
+          "bookingid": 375
+        },
+        {
+          "bookingid": 177
+        },
+        {
+          "bookingid": 1184
+        },
+        {
+          "bookingid": 857
+        },
+        {
+          "bookingid": 1209
+        },
+        {
+          "bookingid": 1318
+        },
+        {
+          "bookingid": 113
+        },
+        {
+          "bookingid": 373
+        },
+        {
+          "bookingid": 1310
+        },
+        {
+          "bookingid": 117
+        },
+        {
+          "bookingid": 691
+        },
+        {
+          "bookingid": 766
+        },
+        {
+          "bookingid": 255
+        },
+        {
+          "bookingid": 662
+        },
+        {
+          "bookingid": 772
+        },
+        {
+          "bookingid": 770
+        },
+        {
+          "bookingid": 1390
+        },
+        {
+          "bookingid": 394
+        },
+        {
+          "bookingid": 1386
+        },
+        {
+          "bookingid": 1146
+        },
+        {
+          "bookingid": 724
+        },
+        {
+          "bookingid": 1274
+        },
+        {
+          "bookingid": 1025
+        },
+        {
+          "bookingid": 663
+        },
+        {
+          "bookingid": 129
+        },
+        {
+          "bookingid": 279
+        },
+        {
+          "bookingid": 1130
+        },
+        {
+          "bookingid": 952
+        },
+        {
+          "bookingid": 588
+        },
+        {
+          "bookingid": 1125
+        },
+        {
+          "bookingid": 786
+        },
+        {
+          "bookingid": 155
+        },
+        {
+          "bookingid": 1098
+        },
+        {
+          "bookingid": 792
+        },
+        {
+          "bookingid": 1162
+        },
+        {
+          "bookingid": 99
+        },
+        {
+          "bookingid": 1228
+        },
+        {
+          "bookingid": 609
+        },
+        {
+          "bookingid": 1363
+        },
+        {
+          "bookingid": 1211
+        },
+        {
+          "bookingid": 558
+        },
+        {
+          "bookingid": 320
+        },
+        {
+          "bookingid": 940
+        },
+        {
+          "bookingid": 142
+        },
+        {
+          "bookingid": 862
+        },
+        {
+          "bookingid": 5
+        },
+        {
+          "bookingid": 722
+        },
+        {
+          "bookingid": 608
+        },
+        {
+          "bookingid": 550
+        },
+        {
+          "bookingid": 1072
+        },
+        {
+          "bookingid": 1131
+        },
+        {
+          "bookingid": 749
+        },
+        {
+          "bookingid": 19
+        },
+        {
+          "bookingid": 701
+        },
+        {
+          "bookingid": 997
+        },
+        {
+          "bookingid": 760
+        },
+        {
+          "bookingid": 325
+        },
+        {
+          "bookingid": 121
+        },
+        {
+          "bookingid": 562
+        },
+        {
+          "bookingid": 753
+        },
+        {
+          "bookingid": 988
+        },
+        {
+          "bookingid": 1325
+        },
+        {
+          "bookingid": 939
+        },
+        {
+          "bookingid": 1280
+        },
+        {
+          "bookingid": 841
+        },
+        {
+          "bookingid": 281
+        },
+        {
+          "bookingid": 136
+        },
+        {
+          "bookingid": 505
+        },
+        {
+          "bookingid": 1319
+        },
+        {
+          "bookingid": 433
+        },
+        {
+          "bookingid": 1118
+        },
+        {
+          "bookingid": 1306
+        },
+        {
+          "bookingid": 11
+        },
+        {
+          "bookingid": 1154
+        },
+        {
+          "bookingid": 58
+        },
+        {
+          "bookingid": 9
+        },
+        {
+          "bookingid": 1097
+        },
+        {
+          "bookingid": 929
+        },
+        {
+          "bookingid": 677
+        },
+        {
+          "bookingid": 221
+        },
+        {
+          "bookingid": 551
+        },
+        {
+          "bookingid": 1407
+        },
+        {
+          "bookingid": 983
+        },
+        {
+          "bookingid": 181
+        },
+        {
+          "bookingid": 1227
+        },
+        {
+          "bookingid": 655
+        },
+        {
+          "bookingid": 1135
+        },
+        {
+          "bookingid": 15
+        },
+        {
+          "bookingid": 303
+        },
+        {
+          "bookingid": 728
+        },
+        {
+          "bookingid": 478
+        },
+        {
+          "bookingid": 1082
+        },
+        {
+          "bookingid": 634
+        },
+        {
+          "bookingid": 180
+        },
+        {
+          "bookingid": 1366
+        },
+        {
+          "bookingid": 1156
+        },
+        {
+          "bookingid": 230
+        },
+        {
+          "bookingid": 647
+        },
+        {
+          "bookingid": 31
+        },
+        {
+          "bookingid": 1075
+        },
+        {
+          "bookingid": 697
+        },
+        {
+          "bookingid": 391
+        },
+        {
+          "bookingid": 118
+        },
+        {
+          "bookingid": 228
+        },
+        {
+          "bookingid": 978
+        },
+        {
+          "bookingid": 101
+        },
+        {
+          "bookingid": 1055
+        },
+        {
+          "bookingid": 582
+        },
+        {
+          "bookingid": 544
+        },
+        {
+          "bookingid": 668
+        },
+        {
+          "bookingid": 615
+        },
+        {
+          "bookingid": 13
+        },
+        {
+          "bookingid": 1147
+        },
+        {
+          "bookingid": 122
+        },
+        {
+          "bookingid": 643
+        },
+        {
+          "bookingid": 1100
+        },
+        {
+          "bookingid": 539
+        },
+        {
+          "bookingid": 174
+        },
+        {
+          "bookingid": 1329
+        },
+        {
+          "bookingid": 355
+        },
+        {
+          "bookingid": 1092
+        },
+        {
+          "bookingid": 826
+        },
+        {
+          "bookingid": 332
+        },
+        {
+          "bookingid": 126
+        },
+        {
+          "bookingid": 1401
+        },
+        {
+          "bookingid": 288
+        },
+        {
+          "bookingid": 1381
+        },
+        {
+          "bookingid": 1251
+        },
+        {
+          "bookingid": 1315
+        },
+        {
+          "bookingid": 95
+        },
+        {
+          "bookingid": 904
+        },
+        {
+          "bookingid": 1001
+        },
+        {
+          "bookingid": 434
+        },
+        {
+          "bookingid": 1351
+        },
+        {
+          "bookingid": 263
+        },
+        {
+          "bookingid": 882
+        },
+        {
+          "bookingid": 1252
+        },
+        {
+          "bookingid": 1004
+        },
+        {
+          "bookingid": 994
+        },
+        {
+          "bookingid": 1069
+        },
+        {
+          "bookingid": 518
+        },
+        {
+          "bookingid": 1376
+        },
+        {
+          "bookingid": 870
+        },
+        {
+          "bookingid": 976
+        },
+        {
+          "bookingid": 557
+        },
+        {
+          "bookingid": 816
+        },
+        {
+          "bookingid": 153
+        },
+        {
+          "bookingid": 807
+        },
+        {
+          "bookingid": 580
+        },
+        {
+          "bookingid": 964
+        },
+        {
+          "bookingid": 1238
+        },
+        {
+          "bookingid": 1394
+        },
+        {
+          "bookingid": 283
+        },
+        {
+          "bookingid": 34
+        },
+        {
+          "bookingid": 253
+        },
+        {
+          "bookingid": 1253
+        },
+        {
+          "bookingid": 1188
+        },
+        {
+          "bookingid": 852
+        },
+        {
+          "bookingid": 955
+        },
+        {
+          "bookingid": 648
+        },
+        {
+          "bookingid": 656
+        },
+        {
+          "bookingid": 184
+        },
+        {
+          "bookingid": 1258
+        },
+        {
+          "bookingid": 1085
+        },
+        {
+          "bookingid": 215
+        },
+        {
+          "bookingid": 690
+        },
+        {
+          "bookingid": 431
+        },
+        {
+          "bookingid": 235
+        },
+        {
+          "bookingid": 592
+        },
+        {
+          "bookingid": 1115
+        },
+        {
+          "bookingid": 1360
+        },
+        {
+          "bookingid": 463
+        },
+        {
+          "bookingid": 1345
+        },
+        {
+          "bookingid": 316
+        },
+        {
+          "bookingid": 159
+        },
+        {
+          "bookingid": 131
+        },
+        {
+          "bookingid": 493
+        },
+        {
+          "bookingid": 1061
+        },
+        {
+          "bookingid": 245
+        },
+        {
+          "bookingid": 474
+        },
+        {
+          "bookingid": 886
+        },
+        {
+          "bookingid": 921
+        },
+        {
+          "bookingid": 386
+        },
+        {
+          "bookingid": 324
+        },
+        {
+          "bookingid": 1368
+        },
+        {
+          "bookingid": 76
+        },
+        {
+          "bookingid": 938
+        },
+        {
+          "bookingid": 620
+        },
+        {
+          "bookingid": 1402
+        },
+        {
+          "bookingid": 1036
+        },
+        {
+          "bookingid": 1343
+        },
+        {
+          "bookingid": 35
+        },
+        {
+          "bookingid": 238
+        },
+        {
+          "bookingid": 797
+        },
+        {
+          "bookingid": 1404
+        },
+        {
+          "bookingid": 892
+        },
+        {
+          "bookingid": 502
+        },
+        {
+          "bookingid": 48
+        },
+        {
+          "bookingid": 1350
+        },
+        {
+          "bookingid": 1321
+        },
+        {
+          "bookingid": 24
+        },
+        {
+          "bookingid": 741
+        },
+        {
+          "bookingid": 607
+        },
+        {
+          "bookingid": 593
+        },
+        {
+          "bookingid": 1322
+        },
+        {
+          "bookingid": 488
+        },
+        {
+          "bookingid": 1239
+        },
+        {
+          "bookingid": 92
+        },
+        {
+          "bookingid": 1337
+        },
+        {
+          "bookingid": 110
+        },
+        {
+          "bookingid": 1087
+        },
+        {
+          "bookingid": 1196
+        },
+        {
+          "bookingid": 73
+        },
+        {
+          "bookingid": 1320
+        },
+        {
+          "bookingid": 273
+        },
+        {
+          "bookingid": 282
+        },
+        {
+          "bookingid": 143
+        },
+        {
+          "bookingid": 1021
+        },
+        {
+          "bookingid": 1064
+        },
+        {
+          "bookingid": 899
+        },
+        {
+          "bookingid": 965
+        },
+        {
+          "bookingid": 1005
+        },
+        {
+          "bookingid": 437
+        },
+        {
+          "bookingid": 1271
+        },
+        {
+          "bookingid": 887
+        },
+        {
+          "bookingid": 130
+        },
+        {
+          "bookingid": 896
+        },
+        {
+          "bookingid": 209
+        },
+        {
+          "bookingid": 825
+        },
+        {
+          "bookingid": 1327
+        },
+        {
+          "bookingid": 361
+        },
+        {
+          "bookingid": 675
+        },
+        {
+          "bookingid": 928
+        },
+        {
+          "bookingid": 28
+        },
+        {
+          "bookingid": 556
+        },
+        {
+          "bookingid": 423
+        },
+        {
+          "bookingid": 845
+        },
+        {
+          "bookingid": 503
+        },
+        {
+          "bookingid": 1106
+        },
+        {
+          "bookingid": 300
+        },
+        {
+          "bookingid": 321
+        },
+        {
+          "bookingid": 732
+        },
+        {
+          "bookingid": 1181
+        },
+        {
+          "bookingid": 541
+        },
+        {
+          "bookingid": 26
+        },
+        {
+          "bookingid": 948
+        },
+        {
+          "bookingid": 1331
+        },
+        {
+          "bookingid": 814
+        },
+        {
+          "bookingid": 80
+        },
+        {
+          "bookingid": 1222
+        },
+        {
+          "bookingid": 1240
+        },
+        {
+          "bookingid": 603
+        },
+        {
+          "bookingid": 428
+        },
+        {
+          "bookingid": 298
+        },
+        {
+          "bookingid": 1193
+        },
+        {
+          "bookingid": 1122
+        },
+        {
+          "bookingid": 23
+        },
+        {
+          "bookingid": 422
+        },
+        {
+          "bookingid": 1221
+        },
+        {
+          "bookingid": 187
+        },
+        {
+          "bookingid": 628
+        },
+        {
+          "bookingid": 1220
+        },
+        {
+          "bookingid": 459
+        },
+        {
+          "bookingid": 252
+        },
+        {
+          "bookingid": 87
+        },
+        {
+          "bookingid": 755
+        },
+        {
+          "bookingid": 307
+        },
+        {
+          "bookingid": 794
+        },
+        {
+          "bookingid": 1063
+        },
+        {
+          "bookingid": 419
+        },
+        {
+          "bookingid": 1009
+        },
+        {
+          "bookingid": 917
+        },
+        {
+          "bookingid": 587
+        },
+        {
+          "bookingid": 913
+        },
+        {
+          "bookingid": 1372
+        },
+        {
+          "bookingid": 308
+        },
+        {
+          "bookingid": 856
+        },
+        {
+          "bookingid": 572
+        },
+        {
+          "bookingid": 768
+        },
+        {
+          "bookingid": 1204
+        },
+        {
+          "bookingid": 618
+        },
+        {
+          "bookingid": 1155
+        },
+        {
+          "bookingid": 379
+        },
+        {
+          "bookingid": 251
+        },
+        {
+          "bookingid": 802
+        },
+        {
+          "bookingid": 893
+        },
+        {
+          "bookingid": 953
+        },
+        {
+          "bookingid": 1112
+        },
+        {
+          "bookingid": 57
+        },
+        {
+          "bookingid": 1047
+        },
+        {
+          "bookingid": 577
+        },
+        {
+          "bookingid": 831
+        },
+        {
+          "bookingid": 291
+        },
+        {
+          "bookingid": 496
+        },
+        {
+          "bookingid": 506
+        },
+        {
+          "bookingid": 429
+        },
+        {
+          "bookingid": 1373
+        },
+        {
+          "bookingid": 415
+        },
+        {
+          "bookingid": 568
+        },
+        {
+          "bookingid": 758
+        },
+        {
+          "bookingid": 447
+        },
+        {
+          "bookingid": 1233
+        },
+        {
+          "bookingid": 723
+        },
+        {
+          "bookingid": 440
+        },
+        {
+          "bookingid": 82
+        },
+        {
+          "bookingid": 100
+        },
+        {
+          "bookingid": 1255
+        },
+        {
+          "bookingid": 140
+        },
+        {
+          "bookingid": 1101
+        },
+        {
+          "bookingid": 1173
+        },
+        {
+          "bookingid": 918
+        },
+        {
+          "bookingid": 1365
+        },
+        {
+          "bookingid": 467
+        },
+        {
+          "bookingid": 730
+        },
+        {
+          "bookingid": 809
+        },
+        {
+          "bookingid": 1161
+        },
+        {
+          "bookingid": 520
+        },
+        {
+          "bookingid": 491
+        },
+        {
+          "bookingid": 1041
+        },
+        {
+          "bookingid": 340
+        },
+        {
+          "bookingid": 1093
+        },
+        {
+          "bookingid": 746
+        },
+        {
+          "bookingid": 1303
+        },
+        {
+          "bookingid": 352
+        },
+        {
+          "bookingid": 863
+        },
+        {
+          "bookingid": 390
+        },
+        {
+          "bookingid": 61
+        },
+        {
+          "bookingid": 105
+        },
+        {
+          "bookingid": 392
+        },
+        {
+          "bookingid": 967
+        },
+        {
+          "bookingid": 77
+        },
+        {
+          "bookingid": 170
+        },
+        {
+          "bookingid": 1071
+        },
+        {
+          "bookingid": 36
+        },
+        {
+          "bookingid": 1328
+        },
+        {
+          "bookingid": 3
+        },
+        {
+          "bookingid": 89
+        },
+        {
+          "bookingid": 96
+        },
+        {
+          "bookingid": 1182
+        },
+        {
+          "bookingid": 17
+        },
+        {
+          "bookingid": 401
+        },
+        {
+          "bookingid": 397
+        },
+        {
+          "bookingid": 137
+        },
+        {
+          "bookingid": 1270
+        },
+        {
+          "bookingid": 763
+        },
+        {
+          "bookingid": 309
+        },
+        {
+          "bookingid": 1045
+        },
+        {
+          "bookingid": 86
+        },
+        {
+          "bookingid": 119
+        },
+        {
+          "bookingid": 425
+        },
+        {
+          "bookingid": 168
+        },
+        {
+          "bookingid": 950
+        },
+        {
+          "bookingid": 1205
+        },
+        {
+          "bookingid": 685
+        },
+        {
+          "bookingid": 1150
+        },
+        {
+          "bookingid": 1308
+        },
+        {
+          "bookingid": 128
+        },
+        {
+          "bookingid": 1029
+        },
+        {
+          "bookingid": 52
+        },
+        {
+          "bookingid": 651
+        },
+        {
+          "bookingid": 716
+        },
+        {
+          "bookingid": 1088
+        },
+        {
+          "bookingid": 1107
+        },
+        {
+          "bookingid": 1039
+        },
+        {
+          "bookingid": 248
+        },
+        {
+          "bookingid": 970
+        },
+        {
+          "bookingid": 653
+        },
+        {
+          "bookingid": 1086
+        },
+        {
+          "bookingid": 835
+        },
+        {
+          "bookingid": 974
+        },
+        {
+          "bookingid": 1079
+        },
+        {
+          "bookingid": 515
+        },
+        {
+          "bookingid": 125
+        },
+        {
+          "bookingid": 1138
+        },
+        {
+          "bookingid": 344
+        },
+        {
+          "bookingid": 686
+        },
+        {
+          "bookingid": 172
+        },
+        {
+          "bookingid": 635
+        },
+        {
+          "bookingid": 585
+        },
+        {
+          "bookingid": 1297
+        },
+        {
+          "bookingid": 883
+        },
+        {
+          "bookingid": 574
+        },
+        {
+          "bookingid": 1176
+        },
+        {
+          "bookingid": 945
+        },
+        {
+          "bookingid": 861
+        },
+        {
+          "bookingid": 848
+        },
+        {
+          "bookingid": 124
+        },
+        {
+          "bookingid": 1028
+        },
+        {
+          "bookingid": 1198
+        },
+        {
+          "bookingid": 1283
+        },
+        {
+          "bookingid": 789
+        },
+        {
+          "bookingid": 981
+        },
+        {
+          "bookingid": 83
+        },
+        {
+          "bookingid": 1250
+        },
+        {
+          "bookingid": 957
+        },
+        {
+          "bookingid": 244
+        },
+        {
+          "bookingid": 698
+        },
+        {
+          "bookingid": 949
+        },
+        {
+          "bookingid": 138
+        },
+        {
+          "bookingid": 111
+        },
+        {
+          "bookingid": 1374
+        },
+        {
+          "bookingid": 849
+        },
+        {
+          "bookingid": 148
+        },
+        {
+          "bookingid": 39
+        },
+        {
+          "bookingid": 4
+        },
+        {
+          "bookingid": 1137
+        },
+        {
+          "bookingid": 357
+        },
+        {
+          "bookingid": 8
+        },
+        {
+          "bookingid": 74
+        },
+        {
+          "bookingid": 1008
+        },
+        {
+          "bookingid": 210
+        },
+        {
+          "bookingid": 1356
+        },
+        {
+          "bookingid": 195
+        },
+        {
+          "bookingid": 242
+        },
+        {
+          "bookingid": 1109
+        },
+        {
+          "bookingid": 1296
+        },
+        {
+          "bookingid": 1383
+        },
+        {
+          "bookingid": 1286
+        },
+        {
+          "bookingid": 729
+        },
+        {
+          "bookingid": 992
+        },
+        {
+          "bookingid": 384
+        },
+        {
+          "bookingid": 477
+        },
+        {
+          "bookingid": 788
+        },
+        {
+          "bookingid": 445
+        },
+        {
+          "bookingid": 776
+        },
+        {
+          "bookingid": 514
+        },
+        {
+          "bookingid": 645
+        },
+        {
+          "bookingid": 299
+        },
+        {
+          "bookingid": 567
+        },
+        {
+          "bookingid": 2
+        },
+        {
+          "bookingid": 285
+        },
+        {
+          "bookingid": 612
+        },
+        {
+          "bookingid": 805
+        },
+        {
+          "bookingid": 1302
+        },
+        {
+          "bookingid": 1224
+        },
+        {
+          "bookingid": 1018
+        },
+        {
+          "bookingid": 290
+        },
+        {
+          "bookingid": 50
+        },
+        {
+          "bookingid": 1347
+        },
+        {
+          "bookingid": 903
+        },
+        {
+          "bookingid": 272
+        },
+        {
+          "bookingid": 1006
+        },
+        {
+          "bookingid": 916
+        },
+        {
+          "bookingid": 1313
+        },
+        {
+          "bookingid": 387
+        },
+        {
+          "bookingid": 62
+        },
+        {
+          "bookingid": 114
+        },
+        {
+          "bookingid": 183
+        },
+        {
+          "bookingid": 213
+        },
+        {
+          "bookingid": 464
+        },
+        {
+          "bookingid": 1396
+        },
+        {
+          "bookingid": 1263
+        },
+        {
+          "bookingid": 1342
+        },
+        {
+          "bookingid": 109
+        },
+        {
+          "bookingid": 1119
+        },
+        {
+          "bookingid": 268
+        },
+        {
+          "bookingid": 1160
+        },
+        {
+          "bookingid": 411
+        },
+        {
+          "bookingid": 529
+        },
+        {
+          "bookingid": 516
+        },
+        {
+          "bookingid": 234
+        },
+        {
+          "bookingid": 410
+        },
+        {
+          "bookingid": 46
+        },
+        {
+          "bookingid": 372
+        },
+        {
+          "bookingid": 712
+        },
+        {
+          "bookingid": 678
+        },
+        {
+          "bookingid": 644
+        },
+        {
+          "bookingid": 509
+        },
+        {
+          "bookingid": 854
+        },
+        {
+          "bookingid": 1046
+        },
+        {
+          "bookingid": 538
+        },
+        {
+          "bookingid": 306
+        },
+        {
+          "bookingid": 641
+        },
+        {
+          "bookingid": 452
+        },
+        {
+          "bookingid": 1375
+        },
+        {
+          "bookingid": 1292
+        },
+        {
+          "bookingid": 752
+        },
+        {
+          "bookingid": 63
+        },
+        {
+          "bookingid": 1332
+        },
+        {
+          "bookingid": 1215
+        },
+        {
+          "bookingid": 833
+        },
+        {
+          "bookingid": 581
+        },
+        {
+          "bookingid": 1284
+        },
+        {
+          "bookingid": 1012
+        },
+        {
+          "bookingid": 226
+        },
+        {
+          "bookingid": 369
+        },
+        {
+          "bookingid": 778
+        },
+        {
+          "bookingid": 6
+        },
+        {
+          "bookingid": 261
+        },
+        {
+          "bookingid": 438
+        },
+        {
+          "bookingid": 1236
+        },
+        {
+          "bookingid": 68
+        },
+        {
+          "bookingid": 1000
+        },
+        {
+          "bookingid": 532
+        },
+        {
+          "bookingid": 93
+        },
+        {
+          "bookingid": 991
+        },
+        {
+          "bookingid": 717
+        },
+        {
+          "bookingid": 1290
+        },
+        {
+          "bookingid": 1040
+        },
+        {
+          "bookingid": 1398
+        },
+        {
+          "bookingid": 1034
+        },
+        {
+          "bookingid": 891
+        },
+        {
+          "bookingid": 935
+        },
+        {
+          "bookingid": 692
+        },
+        {
+          "bookingid": 1168
+        },
+        {
+          "bookingid": 890
+        },
+        {
+          "bookingid": 1011
+        },
+        {
+          "bookingid": 602
+        },
+        {
+          "bookingid": 312
+        },
+        {
+          "bookingid": 1068
+        },
+        {
+          "bookingid": 1400
+        },
+        {
+          "bookingid": 523
+        },
+        {
+          "bookingid": 1114
+        },
+        {
+          "bookingid": 803
+        },
+        {
+          "bookingid": 216
+        },
+        {
+          "bookingid": 621
+        },
+        {
+          "bookingid": 1132
+        },
+        {
+          "bookingid": 32
+        },
+        {
+          "bookingid": 1077
+        },
+        {
+          "bookingid": 1291
+        },
+        {
+          "bookingid": 880
+        },
+        {
+          "bookingid": 963
+        },
+        {
+          "bookingid": 785
+        },
+        {
+          "bookingid": 734
+        },
+        {
+          "bookingid": 1231
+        },
+        {
+          "bookingid": 469
+        },
+        {
+          "bookingid": 1210
+        },
+        {
+          "bookingid": 366
+        },
+        {
+          "bookingid": 1304
+        },
+        {
+          "bookingid": 820
+        },
+        {
+          "bookingid": 190
+        },
+        {
+          "bookingid": 738
+        },
+        {
+          "bookingid": 1134
+        },
+        {
+          "bookingid": 540
+        },
+        {
+          "bookingid": 564
+        },
+        {
+          "bookingid": 827
+        },
+        {
+          "bookingid": 740
+        },
+        {
+          "bookingid": 576
+        },
+        {
+          "bookingid": 1149
+        },
+        {
+          "bookingid": 767
+        },
+        {
+          "bookingid": 900
+        },
+        {
+          "bookingid": 132
+        },
+        {
+          "bookingid": 84
+        },
+        {
+          "bookingid": 1391
+        },
+        {
+          "bookingid": 147
+        },
+        {
+          "bookingid": 710
+        },
+        {
+          "bookingid": 368
+        },
+        {
+          "bookingid": 1392
+        },
+        {
+          "bookingid": 380
+        },
+        {
+          "bookingid": 446
+        },
+        {
+          "bookingid": 1081
+        },
+        {
+          "bookingid": 55
+        },
+        {
+          "bookingid": 534
+        },
+        {
+          "bookingid": 798
+        },
+        {
+          "bookingid": 1309
+        },
+        {
+          "bookingid": 1230
+        },
+        {
+          "bookingid": 1244
+        },
+        {
+          "bookingid": 747
+        },
+        {
+          "bookingid": 1370
+        },
+        {
+          "bookingid": 704
+        },
+        {
+          "bookingid": 1367
+        },
+        {
+          "bookingid": 575
+        },
+        {
+          "bookingid": 498
+        },
+        {
+          "bookingid": 104
+        },
+        {
+          "bookingid": 12
+        },
+        {
+          "bookingid": 1095
+        },
+        {
+          "bookingid": 1066
+        },
+        {
+          "bookingid": 828
+        },
+        {
+          "bookingid": 150
+        },
+        {
+          "bookingid": 982
+        },
+        {
+          "bookingid": 1143
+        },
+        {
+          "bookingid": 519
+        },
+        {
+          "bookingid": 1048
+        },
+        {
+          "bookingid": 456
+        },
+        {
+          "bookingid": 310
+        },
+        {
+          "bookingid": 995
+        },
+        {
+          "bookingid": 850
+        },
+        {
+          "bookingid": 1035
+        },
+        {
+          "bookingid": 315
+        },
+        {
+          "bookingid": 424
+        },
+        {
+          "bookingid": 412
+        },
+        {
+          "bookingid": 65
+        },
+        {
+          "bookingid": 156
+        },
+        {
+          "bookingid": 780
+        },
+        {
+          "bookingid": 876
+        },
+        {
+          "bookingid": 527
+        },
+        {
+          "bookingid": 483
+        },
+        {
+          "bookingid": 1272
+        },
+        {
+          "bookingid": 141
+        },
+        {
+          "bookingid": 405
+        },
+        {
+          "bookingid": 1336
+        },
+        {
+          "bookingid": 277
+        },
+        {
+          "bookingid": 1317
+        },
+        {
+          "bookingid": 224
+        },
+        {
+          "bookingid": 528
+        },
+        {
+          "bookingid": 937
+        },
+        {
+          "bookingid": 808
+        },
+        {
+          "bookingid": 1042
+        },
+        {
+          "bookingid": 360
+        },
+        {
+          "bookingid": 14
+        },
+        {
+          "bookingid": 1346
+        },
+        {
+          "bookingid": 1049
+        },
+        {
+          "bookingid": 1022
+        },
+        {
+          "bookingid": 381
+        },
+        {
+          "bookingid": 139
+        },
+        {
+          "bookingid": 49
+        },
+        {
+          "bookingid": 1024
+        },
+        {
+          "bookingid": 566
+        },
+        {
+          "bookingid": 875
+        },
+        {
+          "bookingid": 1203
+        },
+        {
+          "bookingid": 260
+        },
+        {
+          "bookingid": 233
+        },
+        {
+          "bookingid": 200
+        },
+        {
+          "bookingid": 450
+        },
+        {
+          "bookingid": 201
+        },
+        {
+          "bookingid": 146
+        },
+        {
+          "bookingid": 1340
+        },
+        {
+          "bookingid": 490
+        },
+        {
+          "bookingid": 396
+        },
+        {
+          "bookingid": 762
+        },
+        {
+          "bookingid": 1384
+        },
+        {
+          "bookingid": 1111
+        },
+        {
+          "bookingid": 1058
+        },
+        {
+          "bookingid": 830
+        },
+        {
+          "bookingid": 1163
+        },
+        {
+          "bookingid": 329
+        },
+        {
+          "bookingid": 194
+        },
+        {
+          "bookingid": 629
+        },
+        {
+          "bookingid": 838
+        },
+        {
+          "bookingid": 1232
+        },
+        {
+          "bookingid": 1197
+        },
+        {
+          "bookingid": 711
+        },
+        {
+          "bookingid": 736
+        },
+        {
+          "bookingid": 7
+        },
+        {
+          "bookingid": 1287
+        },
+        {
+          "bookingid": 1355
+        },
+        {
+          "bookingid": 815
+        },
+        {
+          "bookingid": 1059
+        },
+        {
+          "bookingid": 204
+        },
+        {
+          "bookingid": 1333
+        },
+        {
+          "bookingid": 457
+        },
+        {
+          "bookingid": 406
+        },
+        {
+          "bookingid": 695
+        },
+        {
+          "bookingid": 30
+        },
+        {
+          "bookingid": 107
+        },
+        {
+          "bookingid": 1167
+        },
+        {
+          "bookingid": 923
+        },
+        {
+          "bookingid": 42
+        },
+        {
+          "bookingid": 470
+        },
+        {
+          "bookingid": 1403
+        },
+        {
+          "bookingid": 343
+        },
+        {
+          "bookingid": 1157
+        },
+        {
+          "bookingid": 637
+        },
+        {
+          "bookingid": 44
+        },
+        {
+          "bookingid": 208
+        },
+        {
+          "bookingid": 1140
+        },
+        {
+          "bookingid": 1249
+        },
+        {
+          "bookingid": 1262
+        },
+        {
+          "bookingid": 1353
+        },
+        {
+          "bookingid": 295
+        },
+        {
+          "bookingid": 774
+        },
+        {
+          "bookingid": 1074
+        },
+        {
+          "bookingid": 164
+        },
+        {
+          "bookingid": 535
+        },
+        {
+          "bookingid": 552
+        },
+        {
+          "bookingid": 1187
+        },
+        {
+          "bookingid": 71
+        },
+        {
+          "bookingid": 1256
+        },
+        {
+          "bookingid": 756
+        },
+        {
+          "bookingid": 53
+        },
+        {
+          "bookingid": 178
+        },
+        {
+          "bookingid": 335
+        },
+        {
+          "bookingid": 878
+        },
+        {
+          "bookingid": 649
+        },
+        {
+          "bookingid": 362
+        },
+        {
+          "bookingid": 1172
+        },
+        {
+          "bookingid": 657
+        },
+        {
+          "bookingid": 1312
+        },
+        {
+          "bookingid": 1382
+        },
+        {
+          "bookingid": 932
+        },
+        {
+          "bookingid": 1174
+        },
+        {
+          "bookingid": 475
+        },
+        {
+          "bookingid": 782
+        },
+        {
+          "bookingid": 254
+        },
+        {
+          "bookingid": 1281
+        },
+        {
+          "bookingid": 667
+        },
+        {
+          "bookingid": 441
+        },
+        {
+          "bookingid": 376
+        },
+        {
+          "bookingid": 718
+        },
+        {
+          "bookingid": 480
+        },
+        {
+          "bookingid": 160
+        },
+        {
+          "bookingid": 1202
+        },
+        {
+          "bookingid": 959
+        },
+        {
+          "bookingid": 133
+        },
+        {
+          "bookingid": 1054
+        },
+        {
+          "bookingid": 907
+        },
+        {
+          "bookingid": 905
+        },
+        {
+          "bookingid": 345
+        },
+        {
+          "bookingid": 791
+        },
+        {
+          "bookingid": 990
+        },
+        {
+          "bookingid": 1349
+        },
+        {
+          "bookingid": 70
+        },
+        {
+          "bookingid": 1243
+        },
+        {
+          "bookingid": 1076
+        },
+        {
+          "bookingid": 810
+        },
+        {
+          "bookingid": 866
+        },
+        {
+          "bookingid": 836
+        },
+        {
+          "bookingid": 1300
+        },
+        {
+          "bookingid": 25
+        },
+        {
+          "bookingid": 973
+        },
+        {
+          "bookingid": 546
+        },
+        {
+          "bookingid": 33
+        },
+        {
+          "bookingid": 66
+        },
+        {
+          "bookingid": 241
+        },
+        {
+          "bookingid": 287
+        },
+        {
+          "bookingid": 75
+        },
+        {
+          "bookingid": 599
+        },
+        {
+          "bookingid": 421
+        },
+        {
+          "bookingid": 18
+        },
+        {
+          "bookingid": 492
+        },
+        {
+          "bookingid": 806
+        },
+        {
+          "bookingid": 350
+        },
+        {
+          "bookingid": 1330
+        },
+        {
+          "bookingid": 860
+        },
+        {
+          "bookingid": 705
+        },
+        {
+          "bookingid": 239
+        },
+        {
+          "bookingid": 614
+        },
+        {
+          "bookingid": 727
+        },
+        {
+          "bookingid": 707
+        },
+        {
+          "bookingid": 161
+        },
+        {
+          "bookingid": 874
+        },
+        {
+          "bookingid": 262
+        },
+        {
+          "bookingid": 40
+        },
+        {
+          "bookingid": 466
+        },
+        {
+          "bookingid": 761
+        },
+        {
+          "bookingid": 202
+        },
+        {
+          "bookingid": 1016
+        },
+        {
+          "bookingid": 670
+        },
+        {
+          "bookingid": 81
+        },
+        {
+          "bookingid": 844
+        },
+        {
+          "bookingid": 636
+        },
+        {
+          "bookingid": 134
+        },
+        {
+          "bookingid": 88
+        },
+        {
+          "bookingid": 56
+        },
+        {
+          "bookingid": 1159
+        },
+        {
+          "bookingid": 402
+        },
+        {
+          "bookingid": 972
+        },
+        {
+          "bookingid": 47
+        },
+        {
+          "bookingid": 37
+        },
+        {
+          "bookingid": 1294
+        },
+        {
+          "bookingid": 227
+        },
+        {
+          "bookingid": 1361
+        },
+        {
+          "bookingid": 715
+        },
+        {
+          "bookingid": 987
+        },
+        {
+          "bookingid": 60
+        },
+        {
+          "bookingid": 319
+        },
+        {
+          "bookingid": 1144
+        },
+        {
+          "bookingid": 942
+        },
+        {
+          "bookingid": 258
+        },
+        {
+          "bookingid": 69
+        },
+        {
+          "bookingid": 1335
+        },
+        {
+          "bookingid": 432
+        },
+        {
+          "bookingid": 1359
+        },
+        {
+          "bookingid": 751
+        },
+        {
+          "bookingid": 898
+        },
+        {
+          "bookingid": 735
+        },
+        {
+          "bookingid": 269
+        },
+        {
+          "bookingid": 510
+        },
+        {
+          "bookingid": 51
+        },
+        {
+          "bookingid": 356
+        },
+        {
+          "bookingid": 1191
+        },
+        {
+          "bookingid": 1380
+        },
+        {
+          "bookingid": 1194
+        },
+        {
+          "bookingid": 842
+        },
+        {
+          "bookingid": 398
+        },
+        {
+          "bookingid": 1299
+        },
+        {
+          "bookingid": 487
+        },
+        {
+          "bookingid": 207
+        },
+        {
+          "bookingid": 1377
+        },
+        {
+          "bookingid": 246
+        },
+        {
+          "bookingid": 1364
+        },
+        {
+          "bookingid": 173
+        },
+        {
+          "bookingid": 1017
+        },
+        {
+          "bookingid": 623
+        },
+        {
+          "bookingid": 868
+        },
+        {
+          "bookingid": 167
+        },
+        {
+          "bookingid": 497
+        },
+        {
+          "bookingid": 222
+        },
+        {
+          "bookingid": 699
+        },
+        {
+          "bookingid": 601
+        },
+        {
+          "bookingid": 813
+        },
+        {
+          "bookingid": 1195
+        },
+        {
+          "bookingid": 1217
+        },
+        {
+          "bookingid": 1267
+        },
+        {
+          "bookingid": 584
+        },
+        {
+          "bookingid": 559
+        },
+        {
+          "bookingid": 1223
+        },
+        {
+          "bookingid": 771
+        },
+        {
+          "bookingid": 1316
+        },
+        {
+          "bookingid": 349
+        },
+        {
+          "bookingid": 1278
+        },
+        {
+          "bookingid": 339
+        },
+        {
+          "bookingid": 1033
+        },
+        {
+          "bookingid": 1169
+        },
+        {
+          "bookingid": 744
+        },
+        {
+          "bookingid": 363
+        },
+        {
+          "bookingid": 1027
+        },
+        {
+          "bookingid": 1124
+        },
+        {
+          "bookingid": 451
+        },
+        {
+          "bookingid": 721
+        },
+        {
+          "bookingid": 1214
+        },
+        {
+          "bookingid": 821
+        },
+        {
+          "bookingid": 45
+        },
+        {
+          "bookingid": 21
+        },
+        {
+          "bookingid": 416
+        },
+        {
+          "bookingid": 259
+        },
+        {
+          "bookingid": 409
+        },
+        {
+          "bookingid": 553
+        },
+        {
+          "bookingid": 742
+        },
+        {
+          "bookingid": 1128
+        },
+        {
+          "bookingid": 571
+        },
+        {
+          "bookingid": 198
+        },
+        {
+          "bookingid": 102
+        },
+        {
+          "bookingid": 1324
+        },
+        {
+          "bookingid": 1261
+        },
+        {
+          "bookingid": 265
+        },
+        {
+          "bookingid": 671
+        },
+        {
+          "bookingid": 1102
+        },
+        {
+          "bookingid": 367
+        },
+        {
+          "bookingid": 1053
+        },
+        {
+          "bookingid": 679
+        },
+        {
+          "bookingid": 1388
+        },
+        {
+          "bookingid": 908
+        },
+        {
+          "bookingid": 112
+        },
+        {
+          "bookingid": 1
+        },
+        {
+          "bookingid": 1190
+        },
+        {
+          "bookingid": 385
+        },
+        {
+          "bookingid": 1264
+        },
+        {
+          "bookingid": 824
+        },
+        {
+          "bookingid": 94
+        },
+        {
+          "bookingid": 354
+        },
+        {
+          "bookingid": 682
+        },
+        {
+          "bookingid": 500
+        },
+        {
+          "bookingid": 684
+        },
+        {
+          "bookingid": 1268
+        },
+        {
+          "bookingid": 1393
+        },
+        {
+          "bookingid": 1277
+        },
+        {
+          "bookingid": 1003
+        },
+        {
+          "bookingid": 869
+        },
+        {
+          "bookingid": 20
+        },
+        {
+          "bookingid": 545
+        },
+        {
+          "bookingid": 1126
+        },
+        {
+          "bookingid": 27
+        },
+        {
+          "bookingid": 570
+        },
+        {
+          "bookingid": 297
+        },
+        {
+          "bookingid": 920
+        },
+        {
+          "bookingid": 1293
+        },
+        {
+          "bookingid": 889
+        },
+        {
+          "bookingid": 673
+        },
+        {
+          "bookingid": 969
+        },
+        {
+          "bookingid": 1083
+        },
+        {
+          "bookingid": 526
+        },
+        {
+          "bookingid": 975
+        },
+        {
+          "bookingid": 617
+        },
+        {
+          "bookingid": 961
+        },
+        {
+          "bookingid": 1246
+        },
+        {
+          "bookingid": 1282
+        }
+      ]
+    },
+    "verdict": "INTERESTING"
+  },
+  {
+    "id": 84,
+    "category": "Booking ID",
+    "description": "GET /booking/null",
+    "input": {
+      "id": null
+    },
+    "expected": "Should return 404 or 400 for invalid ID",
+    "actual": {
+      "status": 404,
+      "body": "Not Found"
+    },
+    "verdict": "PASS"
+  },
+  {
+    "id": 85,
+    "category": "Booking ID",
+    "description": "GET /booking/undefined",
+    "input": {
+      "id": "undefined"
+    },
+    "expected": "Should return 404 or 400 for invalid ID",
+    "actual": {
+      "status": 404,
+      "body": "Not Found"
+    },
+    "verdict": "PASS"
+  },
+  {
+    "id": 86,
+    "category": "Booking ID",
+    "description": "GET /booking/NaN",
+    "input": {
+      "id": "NaN"
+    },
+    "expected": "Should return 404 or 400 for invalid ID",
+    "actual": {
+      "status": 404,
+      "body": "Not Found"
+    },
+    "verdict": "PASS"
+  },
+  {
+    "id": 87,
+    "category": "Booking ID",
+    "description": "GET /booking/true",
+    "input": {
+      "id": true
+    },
+    "expected": "Should return 404 or 400 for invalid ID",
+    "actual": {
+      "status": 404,
+      "body": "Not Found"
+    },
+    "verdict": "PASS"
+  },
+  {
+    "id": 88,
+    "category": "Booking ID",
+    "description": "GET /booking/1e10",
+    "input": {
+      "id": "1e10"
+    },
+    "expected": "Should return 404 or 400 for invalid ID",
+    "actual": {
+      "status": 200,
+      "body": {
+        "firstname": "Mark",
+        "lastname": "Ericsson",
+        "totalprice": 820,
+        "depositpaid": false,
+        "bookingdates": {
+          "checkin": "2016-06-26",
+          "checkout": "2025-08-21"
+        }
+      }
+    },
+    "verdict": "INTERESTING"
+  },
+  {
+    "id": 89,
+    "category": "Booking ID",
+    "description": "PUT valid booking with token",
+    "input": {
+      "bookingId": 1411
+    },
+    "expected": "Should update (200)",
+    "actual": {
+      "status": 200
+    },
+    "verdict": "PASS"
+  },
+  {
+    "id": 90,
+    "category": "Booking ID",
+    "description": "DELETE same booking twice",
+    "input": {
+      "bookingId": 1411
+    },
+    "expected": "Second delete should return 404/405",
+    "actual": {
+      "firstDelete": 201,
+      "secondDelete": 405
+    },
+    "verdict": "PASS"
+  },
+  {
+    "id": 91,
+    "category": "Date Logic",
+    "description": "checkout before checkin",
+    "input": {
+      "checkin": "2025-06-15",
+      "checkout": "2025-06-10"
+    },
+    "expected": "Should reject (checkout < checkin)",
+    "actual": {
+      "status": 200,
+      "stored": {
+        "checkin": "2025-06-15",
+        "checkout": "2025-06-10"
+      }
+    },
+    "verdict": "INTERESTING"
+  },
+  {
+    "id": 92,
+    "category": "Date Logic",
+    "description": "same checkin and checkout",
+    "input": {
+      "checkin": "2025-06-15",
+      "checkout": "2025-06-15"
+    },
+    "expected": "Should reject zero-night stay",
+    "actual": {
+      "status": 200
+    },
+    "verdict": "INTERESTING"
+  },
+  {
+    "id": 93,
+    "category": "Date Logic",
+    "description": "checkin in the past (year 2000)",
+    "input": {},
+    "expected": "Should reject past dates",
+    "actual": {
+      "status": 200
+    },
+    "verdict": "INTERESTING"
+  },
+  {
+    "id": 94,
+    "category": "Date Logic",
+    "description": "date format: DD/MM/YYYY",
+    "input": {
+      "checkin": "15/06/2025",
+      "checkout": "16/06/2025"
+    },
+    "expected": "Should reject non-standard format or parse consistently",
+    "actual": {
+      "status": 200,
+      "stored": {
+        "checkin": "0NaN-aN-aN",
+        "checkout": "0NaN-aN-aN"
+      }
+    },
+    "verdict": "INTERESTING"
+  },
+  {
+    "id": 95,
+    "category": "Date Logic",
+    "description": "date format: human readable",
+    "input": {
+      "checkin": "Jun 15 2025",
+      "checkout": "Jun 16 2025"
+    },
+    "expected": "Should reject non-standard format or parse consistently",
+    "actual": {
+      "status": 200,
+      "stored": {
+        "checkin": "2025-06-15",
+        "checkout": "2025-06-16"
+      }
+    },
+    "verdict": "INTERESTING"
+  },
+  {
+    "id": 96,
+    "category": "Date Logic",
+    "description": "date format: ISO week",
+    "input": {
+      "checkin": "2025-W25-1",
+      "checkout": "2025-W25-2"
+    },
+    "expected": "Should reject non-standard format or parse consistently",
+    "actual": {
+      "status": 200,
+      "stored": {
+        "checkin": "0NaN-aN-aN",
+        "checkout": "0NaN-aN-aN"
+      }
+    },
+    "verdict": "INTERESTING"
+  },
+  {
+    "id": 97,
+    "category": "Auth",
+    "description": "PUT with empty token",
+    "input": {
+      "token": ""
+    },
+    "expected": "Should reject (403)",
+    "actual": {
+      "status": 403
+    },
+    "verdict": "PASS"
+  },
+  {
+    "id": 98,
+    "category": "Auth",
+    "description": "PUT with garbage token",
+    "input": {
+      "token": "invalid"
+    },
+    "expected": "Should reject (403)",
+    "actual": {
+      "status": 403
+    },
+    "verdict": "PASS"
+  },
+  {
+    "id": 99,
+    "category": "Auth",
+    "description": "PUT with very long token (10K)",
+    "input": {
+      "token": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    "expected": "Should reject (403)",
+    "actual": {
+      "status": 403
+    },
+    "verdict": "PASS"
+  },
+  {
+    "id": 100,
+    "category": "Auth",
+    "description": "PUT with plausible but wrong token",
+    "input": {
+      "token": "abc123def456"
+    },
+    "expected": "Should reject (403)",
+    "actual": {
+      "status": 403
+    },
+    "verdict": "PASS"
+  },
+  {
+    "id": 101,
+    "category": "Auth",
+    "description": "PUT with XSS in token",
+    "input": {
+      "token": "<script>alert(1)</script>"
+    },
+    "expected": "Should reject (403)",
+    "actual": {
+      "status": 403
+    },
+    "verdict": "PASS"
+  },
+  {
+    "id": 102,
+    "category": "Auth",
+    "description": "PUT with SQL injection in token",
+    "input": {
+      "token": "' OR 1=1 --"
+    },
+    "expected": "Should reject (403)",
+    "actual": {
+      "status": 403
+    },
+    "verdict": "PASS"
+  },
+  {
+    "id": 103,
+    "category": "Auth",
+    "description": "PUT with null token",
+    "input": {
+      "token": null
+    },
+    "expected": "Should reject (403)",
+    "actual": {
+      "status": 403
+    },
+    "verdict": "PASS"
+  },
+  {
+    "id": 104,
+    "category": "Auth",
+    "description": "Basic auth: empty creds",
+    "input": {
+      "username": ""
+    },
+    "expected": "Should reject (403)",
+    "actual": {
+      "status": 403
+    },
+    "verdict": "PASS"
+  },
+  {
+    "id": 105,
+    "category": "Auth",
+    "description": "Basic auth: wrong password",
+    "input": {
+      "username": "admin"
+    },
+    "expected": "Should reject (403)",
+    "actual": {
+      "status": 403
+    },
+    "verdict": "PASS"
+  },
+  {
+    "id": 106,
+    "category": "Auth",
+    "description": "Basic auth: SQL injection in username",
+    "input": {
+      "username": "admin' OR 1=1 --"
+    },
+    "expected": "Should reject (403)",
+    "actual": {
+      "status": 403
+    },
+    "verdict": "PASS"
+  },
+  {
+    "id": 107,
+    "category": "Auth",
+    "description": "Basic auth: correct creds via Basic auth",
+    "input": {
+      "username": "admin"
+    },
+    "expected": "Should succeed (200)",
+    "actual": {
+      "status": 200
+    },
+    "verdict": "PASS"
+  },
+  {
+    "id": 108,
+    "category": "Randomized Fuzz",
+    "description": "fuzz iteration 1",
+    "input": {
+      "firstname": "IINORsk9stilbUc8ZS2OZroP9",
+      "lastname": false,
+      "totalprice": -1,
+      "depositpaid": "",
+      "bookingdates": {
+        "checkin": "2025-03-01",
+        "checkout": "2025-03-05"
+      }
+    },
+    "expected": "May accept",
+    "actual": {
+      "status": 200
+    },
+    "verdict": "PASS"
+  },
+  {
+    "id": 109,
+    "category": "Randomized Fuzz",
+    "description": "fuzz iteration 2",
+    "input": {
+      "firstname": true,
+      "lastname": "",
+      "totalprice": null,
+      "depositpaid": "yes",
+      "bookingdates": {
+        "checkin": "T0YpvEG70f",
+        "checkout": "rZEmwsgpcD"
+      },
+      "additionalneeds": "Breakfast"
+    },
+    "expected": "Should reject malformed input",
+    "actual": {
+      "status": 500
+    },
+    "verdict": "PASS"
+  },
+  {
+    "id": 110,
+    "category": "Randomized Fuzz",
+    "description": "fuzz iteration 3",
+    "input": {
+      "firstname": "",
+      "lastname": false,
+      "totalprice": -1,
+      "depositpaid": "yes",
+      "bookingdates": null,
+      "additionalneeds": null
+    },
+    "expected": "Should reject malformed input",
+    "actual": {
+      "status": 500
+    },
+    "verdict": "PASS"
+  },
+  {
+    "id": 111,
+    "category": "Randomized Fuzz",
+    "description": "fuzz iteration 4",
+    "input": {
+      "firstname": "",
+      "lastname": "",
+      "totalprice": -2306.120544322587,
+      "depositpaid": "yes",
+      "bookingdates": {
+        "checkin": "2025-03-01",
+        "checkout": "2025-03-05"
+      },
+      "additionalneeds": ""
+    },
+    "expected": "May accept",
+    "actual": {
+      "status": 200
+    },
+    "verdict": "PASS"
+  },
+  {
+    "id": 112,
+    "category": "Randomized Fuzz",
+    "description": "fuzz iteration 5",
+    "input": {
+      "firstname": {
+        "x": 1
+      },
+      "lastname": false,
+      "totalprice": "abc",
+      "depositpaid": 0,
+      "bookingdates": {
+        "checkin": "2025-03-01",
+        "checkout": "2025-03-05"
+      },
+      "additionalneeds": 123
+    },
+    "expected": "Should reject malformed input",
+    "actual": {
+      "status": 500
+    },
+    "verdict": "PASS"
+  },
+  {
+    "id": 113,
+    "category": "Randomized Fuzz",
+    "description": "fuzz iteration 6",
+    "input": {
+      "firstname": {
+        "x": 1
+      },
+      "lastname": "MHUTZxicgFDZEa44L53Hy621dy29rg7NA1Da442CI8mg4hSLkJnMAfvOZbXQqYaHNFPOKtuOnRWNcWXEb7LLVrIPRJvGueSVTXvxMJeIrv4ysIWQhCv",
+      "totalprice": -1,
+      "depositpaid": "yes",
+      "bookingdates": {
+        "checkin": "",
+        "checkout": ""
+      },
+      "additionalneeds": 123
+    },
+    "expected": "Should reject malformed input",
+    "actual": {
+      "status": 500
+    },
+    "verdict": "PASS"
+  },
+  {
+    "id": 114,
+    "category": "Randomized Fuzz",
+    "description": "fuzz iteration 7",
+    "input": {
+      "firstname": true,
+      "lastname": "3jSRG2KYTZd3xEnaOSHe6lx6eS1KEFfK3sLgVO",
+      "totalprice": null,
+      "depositpaid": true,
+      "bookingdates": {
+        "checkin": "2025-03-01",
+        "checkout": "2025-03-05"
+      },
+      "additionalneeds": "Breakfast"
+    },
+    "expected": "Should reject malformed input",
+    "actual": {
+      "status": 500
+    },
+    "verdict": "PASS"
+  },
+  {
+    "id": 115,
+    "category": "Randomized Fuzz",
+    "description": "fuzz iteration 8",
+    "input": {
+      "firstname": true,
+      "lastname": null,
+      "totalprice": null,
+      "depositpaid": true,
+      "bookingdates": {
+        "checkin": "",
+        "checkout": ""
+      },
+      "additionalneeds": "gC8gKdegB7GoH0iXvO8Dhme9Q7QC9tI4rnc1sJNfFi4ticc5NaG8YevoJzb2RzLlGvqSHHBUTi1jwj6M7SiLUgbHRt9mTO1Aj1JTFRLY5wuyii7kBNxlarZlSwedCPUA34znSyGiM5pnlp5BZNJVFxCZZQvcysUSPdpw8ReFGa9o76AWfi0LgN8bqVjoH4X6pRQc0fK6aGVmw8sA61j443PL0pET7Kg8Jn78VHNq7RZIjsuqnvn9K1HOJ46MEnJ03r1cAAivm46JceeOBJ7MwehkrFL89QzmAvSFV46xhxS7uprmT8NlG3IPkSxBRTY7BfSudnN3bSwSK8vvrPIz0E6goudwXeH0rjOrEvl6mUObpX97hcyHynjeA8dB45s7bfAY6TL3QoLc7kPKxM0A2gjjWKf35TcaspKxVSb3QOkgJLnY0WhqYfjFcJtp1avS9ldZEXZZRc1fDCkc2cTwIvVFA0nWnDnImdrPcQlukfSGM6dGLpod"
+    },
+    "expected": "Should reject malformed input",
+    "actual": {
+      "status": 500
+    },
+    "verdict": "PASS"
+  },
+  {
+    "id": 116,
+    "category": "Randomized Fuzz",
+    "description": "fuzz iteration 9",
+    "input": {
+      "firstname": null,
+      "lastname": "ErxQvFXfkJ",
+      "totalprice": -1,
+      "depositpaid": 0,
+      "bookingdates": {
+        "checkin": "",
+        "checkout": ""
+      }
+    },
+    "expected": "Should reject malformed input",
+    "actual": {
+      "status": 500
+    },
+    "verdict": "PASS"
+  },
+  {
+    "id": 117,
+    "category": "Randomized Fuzz",
+    "description": "fuzz iteration 10",
+    "input": {
+      "firstname": "KucF3qp4KQlLz3QAWbtAIw8pqV1",
+      "lastname": "jbLTVRpvR80NbJrvfn2OC6CWh2T7PTr6YSE1HySFiIiCTfu6q4sCUANqYBDsqF8mmOWmrMetVHnz6e1xspHxMYtYMUXHwy82GTuUUFwIllBD2fCL8Fjr4QT6fqyyEDLZWTozxP7Y4Lv2Z54kwqpBBbdawCauEtDTo4Lloyl",
+      "totalprice": null,
+      "bookingdates": "not-an-object"
+    },
+    "expected": "Should reject malformed input",
+    "actual": {
+      "status": 500
+    },
+    "verdict": "PASS"
+  },
+  {
+    "id": 118,
+    "category": "Randomized Fuzz",
+    "description": "fuzz iteration 11",
+    "input": {
+      "firstname": "kf2x2rYgebXzo3xXpof701fFL5X82hK9Y1hEaxUzXwwqyGf3jCPudirObDOCTWaS5iIUxZNUi3KV0LZe4nVObndLfNhWvVsFRKOb7dCjyGQZ2nWsMJopvs9nS4819",
+      "lastname": false,
+      "totalprice": null,
+      "bookingdates": "not-an-object",
+      "additionalneeds": "Breakfast"
+    },
+    "expected": "Should reject malformed input",
+    "actual": {
+      "status": 500
+    },
+    "verdict": "PASS"
+  },
+  {
+    "id": 119,
+    "category": "Randomized Fuzz",
+    "description": "fuzz iteration 12",
+    "input": {
+      "firstname": {
+        "x": 1
+      },
+      "lastname": 42,
+      "totalprice": -2429.0163261863463,
+      "depositpaid": 1,
+      "bookingdates": null
+    },
+    "expected": "Should reject malformed input",
+    "actual": {
+      "status": 500
+    },
+    "verdict": "PASS"
+  },
+  {
+    "id": 120,
+    "category": "Randomized Fuzz",
+    "description": "fuzz iteration 13",
+    "input": {
+      "firstname": null,
+      "lastname": 42,
+      "totalprice": 0,
+      "depositpaid": 0,
+      "bookingdates": {
+        "checkin": "mGXIZ7gdxh",
+        "checkout": "6hgT3j0COd"
+      },
+      "additionalneeds": ""
+    },
+    "expected": "Should reject malformed input",
+    "actual": {
+      "status": 500
+    },
+    "verdict": "PASS"
+  },
+  {
+    "id": 121,
+    "category": "Randomized Fuzz",
+    "description": "fuzz iteration 14",
+    "input": {
+      "firstname": true,
+      "lastname": 42,
+      "totalprice": null,
+      "bookingdates": {
+        "checkin": "2025-03-01",
+        "checkout": "2025-03-05"
+      },
+      "additionalneeds": null
+    },
+    "expected": "Should reject malformed input",
+    "actual": {
+      "status": 500
+    },
+    "verdict": "PASS"
+  },
+  {
+    "id": 122,
+    "category": "Randomized Fuzz",
+    "description": "fuzz iteration 15",
+    "input": {
+      "firstname": {
+        "x": 1
+      },
+      "lastname": 42,
+      "totalprice": 0,
+      "depositpaid": true,
+      "bookingdates": null,
+      "additionalneeds": 123
+    },
+    "expected": "Should reject malformed input",
+    "actual": {
+      "status": 500
+    },
+    "verdict": "PASS"
+  },
+  {
+    "id": 123,
+    "category": "Randomized Fuzz",
+    "description": "fuzz iteration 16",
+    "input": {
+      "firstname": "nVDqzDwm3PtEq3X6Q4q7lzhLTpiyuv1nZE4pIxNy4DbnpYHViY6wIybdkoXAccB7GG9Xzr03zypzX6HtIKhH2pKQ2gXPfETjCO5KrUxjUfp9eTY4gQlZT2K6i5",
+      "lastname": "ux",
+      "totalprice": null,
+      "depositpaid": null,
+      "bookingdates": {
+        "checkin": "",
+        "checkout": ""
+      },
+      "additionalneeds": "VQvDkDhQANnWwQ5P2h6wZtZ7vlMCetWqJodWQHUyjIHra7FwM2F8PR533Nmw5nWIValSu6HMGq43hoOrOvVG8bjqcX9ylFiOJ8ug1GYy9vDVHTHmZ1wrL8RTCekwUkrqNyrvsKGRnvWFFOM3mWG4cFxwyWMOxmOWmG82cYUYHbZTwUDmjf2qBTlx9fF7sGwxDMJk0e3E4cGiEWGt71Ssg3YwvRfxeNeimWI5kHG1EFJ0vAvSYQFuzHFyWQ2uEJWYIrUA8llEY4DgLMu68KWhI1SA3dgYufsAaRoZKZOGtHsmeJecFixi0XY0xAfqhKBfqeuomeQiNDdha4f7OAk9q2dtJyCwDea4fH8Go83jXaDczoBL18fc2EZ5k7l5Q7tvenVzcmzUVsKCNh6EWUxnegvTDezE9zkDgjr8Qz7u5U3uPapohCPsx7AX79jHRNGKXuFGimjlciyMbQ35PX18ug52zVUCcIBUQbCCOH27pbVCyibEZf0J"
+    },
+    "expected": "May accept",
+    "actual": {
+      "status": 500
+    },
+    "verdict": "FAIL"
+  },
+  {
+    "id": 124,
+    "category": "Randomized Fuzz",
+    "description": "fuzz iteration 17",
+    "input": {
+      "firstname": null,
+      "lastname": null,
+      "totalprice": 331.143391077625,
+      "depositpaid": "yes",
+      "bookingdates": {
+        "checkin": "2025-03-01",
+        "checkout": "2025-03-05"
+      }
+    },
+    "expected": "Should reject malformed input",
+    "actual": {
+      "status": 500
+    },
+    "verdict": "PASS"
+  },
+  {
+    "id": 125,
+    "category": "Randomized Fuzz",
+    "description": "fuzz iteration 18",
+    "input": {
+      "firstname": {
+        "x": 1
+      },
+      "lastname": "",
+      "totalprice": null,
+      "depositpaid": null,
+      "bookingdates": {
+        "checkin": "",
+        "checkout": ""
+      },
+      "additionalneeds": "KjAc6nX4FCrjFF9OFQTzCVtqvxrhgCBTJHgpmcgwJ7SxRnNdllHyaY54A6s2pU3IFSbYfpkMMYFEV4fclkGhRDO92QAxmZ4KjX4Lgk9e5P1ppVNfTNCPvEsXlPwXZCH76rybPV1GYRgeL3Nngcd0Q8zqbQzCfp5O5VXQaKw97v8NZo5lAIv3wFSivQ79CwKPx4PiORX4iYFo0anSBcxMzfVO65yV2tG3zKKVfu3nKuUIDCGHU3V2QyIcivlBFelQNPSu1cxjI6ay9GycugWvHquPIGHR3wKph8ObEmtMtWguJlE7M9OHxv6Io1gyjrkTNod4Ozc47QPXgaMp6afRPkbizAUBX8YUnjycWILTxGnPYu6TJFHSR90lGUQj8YDQoEaXbYLeTWBbsJsz6oOPjUQQxUokydHxx5CQ21gRLR6kNWLZ40v1QFK2hLaotKVVpJ7VFBGdV8SmmCj3LCWjqxOsYJxLDLcfY4zu0TYnhbFLYJHQlBnN"
+    },
+    "expected": "Should reject malformed input",
+    "actual": {
+      "status": 500
+    },
+    "verdict": "PASS"
+  },
+  {
+    "id": 126,
+    "category": "Randomized Fuzz",
+    "description": "fuzz iteration 19",
+    "input": {
+      "firstname": "G6AGGdQzlAN7QC",
+      "lastname": "",
+      "totalprice": null,
+      "depositpaid": 1,
+      "bookingdates": {
+        "checkin": "7wkgWpAPjV",
+        "checkout": "Ptn42xXW2t"
+      }
+    },
+    "expected": "May accept",
+    "actual": {
+      "status": 500
+    },
+    "verdict": "FAIL"
+  },
+  {
+    "id": 127,
+    "category": "Randomized Fuzz",
+    "description": "fuzz iteration 20",
+    "input": {
+      "firstname": 42,
+      "lastname": false,
+      "totalprice": -1,
+      "depositpaid": true,
+      "bookingdates": "not-an-object",
+      "additionalneeds": ""
+    },
+    "expected": "Should reject malformed input",
+    "actual": {
+      "status": 500
+    },
+    "verdict": "PASS"
+  }
+]

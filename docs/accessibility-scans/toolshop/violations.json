@@ -1,0 +1,52 @@
+{
+  "url": "https://practicesoftwaretesting.com/",
+  "timestamp": "2026-02-16T10:45:57.868Z",
+  "standard": "WCAG 2.2 AA",
+  "toolsUsed": ["axe-core"],
+  "toolsFailed": ["pa11y"],
+  "pagesScanned": 4,
+  "complianceScore": 97,
+  "violations": [
+    {
+      "id": "aria-hidden-focus",
+      "tool": "axe-core",
+      "impact": "serious",
+      "wcag": ["4.1.2"],
+      "en301549": "9.4.1.2",
+      "description": "ARIA hidden element must not be focusable or contain focusable elements",
+      "affectedPages": ["homepage", "product-listing", "product-detail", "contact"],
+      "element": {
+        "selector": "#language",
+        "html": "<button id=\"language\" type=\"button\" data-test=\"language-select\" aria-hidden=\"true\" data-bs-toggle=\"dropdown\" aria-expanded=\"false\" class=\"btn nav-link dropdown-toggle\">",
+        "context": "Language selector dropdown in navigation header"
+      },
+      "remediation": {
+        "recommended": "Remove aria-hidden=\"true\" and add aria-label=\"Select language\"",
+        "alternative": "Add tabindex=\"-1\" if intentionally hidden",
+        "effort": "0.25h",
+        "confidence": 0.98
+      },
+      "userImpact": {
+        "affectedGroups": ["blind", "screen-reader-users"],
+        "percentAffected": 5,
+        "severity": "IMPAIRS-USAGE"
+      }
+    }
+  ],
+  "structuralObservations": [
+    {"issue": "No <main> landmark", "severity": "moderate"},
+    {"issue": "No <header> landmark", "severity": "moderate"},
+    {"issue": "No <footer> landmark", "severity": "moderate"},
+    {"issue": "No <h1> heading on any page", "severity": "moderate"},
+    {"issue": "1 iframe without verified title", "severity": "low"}
+  ],
+  "pageData": {
+    "homepage": {
+      "images": {"total": 1, "withAlt": 1, "withoutAlt": 0},
+      "headings": {"h1": 0, "total": 15},
+      "forms": {"total": 2, "inputs": 3},
+      "landmarks": {"main": 0, "nav": 1, "header": 0, "footer": 0},
+      "aria": {"labels": 8, "roles": 22}
+    }
+  }
+}

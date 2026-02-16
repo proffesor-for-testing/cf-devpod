@@ -1,0 +1,146 @@
+# HTTPBin API Contract Test Report
+
+**Date**: 2026-02-16T10:23:35.666Z
+**Target**: https://httpbin.org
+**Agent**: QE Contract Validator v3 (AQE v3.6.8)
+**Total Tests**: 31
+**Passed**: 31 | **Failed**: 0
+**Pass Rate**: 100.0%
+**Total Execution Time**: 5.98s
+
+---
+
+## Results Summary
+
+| Category | Tests | Passed | Failed |
+|----------|-------|--------|--------|
+| HTTP Methods | 5 | 5 | 0 |
+| Status Codes | 9 | 9 | 0 |
+| Request Inspection | 3 | 3 | 0 |
+| Response Formats | 4 | 4 | 0 |
+| Dynamic Data | 4 | 4 | 0 |
+| Redirects | 3 | 3 | 0 |
+| Authentication | 3 | 3 | 0 |
+| **Total** | **31** | **31** | **0** |
+
+---
+
+## HTTP Methods
+
+| Status | Test | Time (ms) | Details |
+|--------|------|-----------|----------|
+| PASS | GET /get - echoes args, headers, origin, url | 422 | - |
+| PASS | POST /post - JSON body echoed | 359 | - |
+| PASS | PUT /put - method handling | 91 | - |
+| PASS | PATCH /patch - method handling | 160 | - |
+| PASS | DELETE /delete - method handling | 91 | - |
+
+## Status Codes
+
+| Status | Test | Time (ms) | Details |
+|--------|------|-----------|----------|
+| PASS | GET /status/200 - returns 200 | 90 | - |
+| PASS | GET /status/201 - returns 201 | 183 | - |
+| PASS | GET /status/204 - returns 204 | 89 | - |
+| PASS | GET /status/301 - returns 301 | 89 | - |
+| PASS | GET /status/400 - returns 400 | 89 | - |
+| PASS | GET /status/401 - returns 401 | 90 | - |
+| PASS | GET /status/403 - returns 403 | 219 | - |
+| PASS | GET /status/404 - returns 404 | 90 | - |
+| PASS | GET /status/500 - returns 500 | 118 | - |
+
+## Request Inspection
+
+| Status | Test | Time (ms) | Details |
+|--------|------|-----------|----------|
+| PASS | GET /headers - custom headers echoed | 91 | - |
+| PASS | GET /ip - returns origin IP | 89 | - |
+| PASS | GET /user-agent - returns user-agent | 211 | - |
+
+## Response Formats
+
+| Status | Test | Time (ms) | Details |
+|--------|------|-----------|----------|
+| PASS | GET /json - JSON response | 96 | - |
+| PASS | GET /html - HTML response | 90 | - |
+| PASS | GET /xml - XML response | 90 | - |
+| PASS | GET /encoding/utf8 - UTF-8 content | 176 | - |
+
+## Dynamic Data
+
+| Status | Test | Time (ms) | Details |
+|--------|------|-----------|----------|
+| PASS | GET /delay/1 - ~1s delay measured | 1444 | - |
+| PASS | GET /bytes/1024 - response length 1024 | 140 | - |
+| PASS | GET /uuid - valid UUID format | 91 | - |
+| PASS | GET /base64/SFRUUEJJTiBpcyBhd2Vzb21l - decoded response | 90 | - |
+
+## Redirects
+
+| Status | Test | Time (ms) | Details |
+|--------|------|-----------|----------|
+| PASS | GET /redirect/3 (manual) - returns 302 | 89 | - |
+| PASS | GET /absolute-redirect/2 - follows to 200 | 464 | - |
+| PASS | GET /relative-redirect/2 - follows to 200 | 370 | - |
+
+## Authentication
+
+| Status | Test | Time (ms) | Details |
+|--------|------|-----------|----------|
+| PASS | GET /basic-auth/user/pass - correct credentials | 90 | - |
+| PASS | GET /basic-auth/user/pass - no credentials returns 401 | 90 | - |
+| PASS | GET /bearer - with Bearer token | 91 | - |
+
+---
+
+## Contract Validation Details
+
+### HTTP Methods Contract
+- **GET**: Server echoes query parameters in `args`, request headers in `headers`, client IP in `origin`, and full URL in `url`
+- **POST/PUT/PATCH**: Server echoes JSON request body in `data` field, parsed JSON in `json` field
+- **DELETE**: Server echoes URL and headers
+
+### Status Code Contract
+- Server returns exact HTTP status code matching the path parameter
+- 204 returns no body; 301 returns redirect with Location header
+
+### Request Inspection Contract
+- `/headers`: All request headers echoed in `headers` object (header names capitalized)
+- `/ip`: Returns `origin` field with client IP as string
+- `/user-agent`: Returns `user-agent` field matching sent User-Agent header
+
+### Response Format Contract
+- `/json`: Returns `application/json` with slideshow object
+- `/html`: Returns `text/html` with valid HTML document
+- `/xml`: Returns `application/xml` with valid XML document
+- `/encoding/utf8`: Returns UTF-8 encoded text with unicode characters
+
+### Dynamic Data Contract
+- `/delay/{n}`: Responds after n seconds (measured >= 900ms for n=1)
+- `/bytes/{n}`: Returns exactly n random bytes
+- `/uuid`: Returns RFC 4122 UUID in `uuid` field
+- `/base64/{encoded}`: Returns decoded base64 string
+
+### Redirect Contract
+- `/redirect/{n}`: Chains n redirects with 302 status, Location header points to next
+- `/absolute-redirect/{n}`: Same but with absolute URLs in Location
+- `/relative-redirect/{n}`: Same but with relative URLs in Location
+
+### Authentication Contract
+- `/basic-auth/{user}/{pass}`: Returns 200 with `{authenticated: true, user}` on valid Basic auth; 401 otherwise
+- `/bearer`: Returns 200 with `{authenticated: true, token}` on valid Bearer token; 401 otherwise
+
+---
+
+## Performance Analysis
+
+| Metric | Value |
+|--------|-------|
+| Total execution time | 5.98s |
+| Average response time | 193ms |
+| Fastest test | 89ms |
+| Slowest test | 1444ms |
+
+---
+
+*Generated by AQE Contract Validator v3 -- 2026-02-16T10:23:35.666Z*

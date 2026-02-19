@@ -1,0 +1,15 @@
+{
+  "version": "3.6.13",
+  "maxConcurrent": 2,
+  "workers": {
+    "pattern-consolidator": {
+      "name": "pattern-consolidator",
+      "enabled": true,
+      "interval": 1800000,
+      "lastRun": null,
+      "status": "pending"
+    }
+  },
+  "createdAt": "2026-02-19T17:38:25.645Z",
+  "daemonPid": null
+}

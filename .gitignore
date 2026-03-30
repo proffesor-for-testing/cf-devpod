@@ -67,6 +67,7 @@ coordination/memory_bank/*
 coordination/subtasks/*
 coordination/orchestration/*
 *.db
+*.db-shm
 *.db-journal
 *.db-wal
 *.sqlite
@@ -79,3 +80,4 @@ hive-mind-prompt-*.txt
 .claude/
 .claude-flow/
 memory/
+.agentic-qe/

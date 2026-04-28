@@ -1,0 +1,8 @@
+{
+  "name": "pattern-consolidator",
+  "enabled": true,
+  "interval": 1800000,
+  "projectRoot": "/workspaces/cf-devpod",
+  "dataDir": "/workspaces/cf-devpod/.agentic-qe/data",
+  "createdAt": "2026-04-28T09:29:11.140Z"
+}

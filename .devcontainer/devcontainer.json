@@ -1,0 +1,137 @@
+{
+  // ==========================================================================
+  // Craft Conference 2026 Workshop: Agentic QE Fleet
+  //
+  // Works in two modes:
+  //   - GitHub Codespaces  (cloud, recommended for workshop)
+  //   - DevPod / Docker    (local, mirrors the qe-ruvector devcontainer setup)
+  //
+  // Setup is fully automated by .devcontainer/install-tools.sh
+  // (installs Claude Code, Agentic QE, GitHub CLI, tmux, ccusage).
+  // ==========================================================================
+
+  "name": "Agentic QE Workshop - Craft 2026",
+
+  // Same base image style as qe-ruvector devpod (Debian 12 + features)
+  "image": "mcr.microsoft.com/devcontainers/base:debian12",
+
+  // Resource hints (Codespaces uses these, DevPod respects --memory/--cpus)
+  "hostRequirements": {
+    "cpus": 4,
+    "memory": "8gb",
+    "storage": "32gb"
+  },
+
+  "runArgs": [
+    "--memory=8g",
+    "--memory-swap=12g",
+    "--memory-reservation=4g",
+    "--cpus=3"
+  ],
+
+  // Devcontainer features layered on top of the base image
+  "features": {
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {},
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "20"
+    },
+    "ghcr.io/devcontainers/features/python:1": {},
+    "ghcr.io/devcontainers/features/github-cli:1": {},
+    "ghcr.io/devcontainers/features/common-utils:2": {
+      "installZsh": true,
+      "configureZshAsDefaultShell": true,
+      "installOhMyZsh": true
+    }
+  },
+
+  // Workshop tooling: claude-code, agentic-qe, gh, tmux, ccusage, aliases
+  "postCreateCommand": "bash .devcontainer/install-tools.sh",
+
+  // Show welcome banner on every container start
+  "postStartCommand": "cat .devcontainer/welcome.md 2>/dev/null || true",
+
+  "containerEnv": {
+    "NODE_ENV": "development",
+    "WORKSHOP_MODE": "true"
+  },
+
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        // Claude Code (the star of the workshop)
+        "anthropic.claude-code",
+        "codeflow-studio.claude-code-extension",
+
+        // Token usage visibility
+        "suzuki0430.ccusage-vscode",
+
+        // Core development
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "ms-vscode.vscode-typescript-next",
+
+        // Git & GitHub
+        "eamodio.gitlens",
+        "github.vscode-pull-request-github",
+
+        // Productivity
+        "christian-kohler.path-intellisense",
+        "usernamehw.errorlens",
+        "gruntfuggly.todo-tree",
+
+        // Markdown
+        "yzhang.markdown-all-in-one",
+        "bierner.markdown-preview-github-styles",
+
+        // Testing
+        "orta.vscode-jest",
+
+        // Theme
+        "github.github-vscode-theme"
+      ],
+      "settings": {
+        "editor.fontSize": 14,
+        "editor.tabSize": 2,
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "editor.minimap.enabled": false,
+        "editor.wordWrap": "on",
+        "editor.bracketPairColorization.enabled": true,
+        "editor.guides.bracketPairs": true,
+        "terminal.integrated.fontSize": 13,
+        "terminal.integrated.defaultProfile.linux": "zsh",
+        "files.autoSave": "onFocusChange",
+        "files.exclude": {
+          "**/.git": false,
+          "**/node_modules": true,
+          "**/dist": true,
+          "**/coverage": true
+        },
+        "explorer.sortOrder": "type",
+        "explorer.compactFolders": false,
+        "git.autofetch": true,
+        "git.confirmSync": false,
+        "typescript.updateImportsOnFileMove.enabled": "always",
+        "typescript.suggest.autoImports": true,
+        "workbench.startupEditor": "readme",
+        "workbench.colorTheme": "GitHub Dark Default",
+        "task.allowAutomaticTasks": "on"
+      }
+    }
+  },
+
+  "forwardPorts": [3000, 5173, 8080],
+
+  "waitFor": "postCreateCommand",
+  "shutdownAction": "none",
+
+  "workspaceMount": "source=${localWorkspaceFolder},target=/workspaces/${localWorkspaceFolderBasename},type=bind",
+  "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
+
+  "remoteUser": "vscode",
+
+  "capAdd": [
+    "SYS_ADMIN",
+    "SYS_PTRACE"
+  ]
+}

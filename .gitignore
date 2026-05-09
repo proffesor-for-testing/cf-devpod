@@ -1,0 +1,48 @@
+# Craft 2026 Workshop — runtime artifacts and OS junk
+#
+# Everything below is created by tools (npm, aqe, install-tools.sh) at runtime
+# and must not be committed to the cf-devpod branch.
+
+# OS / editor cruft
+.DS_Store
+Thumbs.db
+*.swp
+.vscode/
+.idea/
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Agentic QE artifacts
+.agentic-qe/
+.aqe-out/
+.aqe-quality-gate.md
+.aqe-report.md
+
+# DevContainer install report (regenerated each container build)
+.devcontainer/installation-report.md
+
+# Claude Code project state (only commit `.claude/commands/` if you ship slash
+# commands; ignore session/state files)
+.claude/projects/
+.claude/sessions/
+.claude/state/
+.claude/.cache/
+
+# Coverage / build outputs
+coverage/
+dist/
+build/
+*.lcov
+.nyc_output/
+
+# Env files (NEVER commit API keys)
+.env
+.env.local
+.env.*.local

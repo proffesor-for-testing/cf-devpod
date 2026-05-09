@@ -1,0 +1,242 @@
+{
+  // ===========================================================================
+  // INTEGRATION DEMO #2: VS Code Tasks for Agentic QE
+  //
+  // Workshop: Quality Engineering in the Agentic Age
+  // Phase: ORCHESTRATE
+  //
+  // These tasks invoke the REAL `aqe` CLI from the `agentic-qe` npm package.
+  // Save this file as .vscode/tasks.json in your project, then run via:
+  //   - Command Palette (Cmd/Ctrl+Shift+P) → "Tasks: Run Task"
+  //   - Keyboard shortcut bound in keybindings.json
+  // ===========================================================================
+
+  "version": "2.0.0",
+  "tasks": [
+    // -------------------------------------------------------------------------
+    // 1. Security SAST scan on the active file's directory
+    // -------------------------------------------------------------------------
+    {
+      "label": "🔒 AQE: Security SAST (current file's dir)",
+      "type": "shell",
+      "command": "aqe",
+      "args": [
+        "security",
+        "--sast",
+        "--target", "${fileDirname}",
+        "-F", "text"
+      ],
+      "group": "test",
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "clear": true
+      },
+      "problemMatcher": []
+    },
+
+    // -------------------------------------------------------------------------
+    // 2. URL safety / PII check (prompts for URL)
+    // -------------------------------------------------------------------------
+    {
+      "label": "🌐 AQE: Validate URL (security + PII)",
+      "type": "shell",
+      "command": "aqe",
+      "args": [
+        "security",
+        "--url-validate", "${input:targetUrl}"
+      ],
+      "group": "test",
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      }
+    },
+
+    // -------------------------------------------------------------------------
+    // 3. Code complexity on the current file
+    // -------------------------------------------------------------------------
+    {
+      "label": "📈 AQE: Complexity (current file)",
+      "type": "shell",
+      "command": "aqe",
+      "args": [
+        "code", "complexity",
+        "${file}"
+      ],
+      "group": "test",
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      }
+    },
+
+    // -------------------------------------------------------------------------
+    // 4. Coverage gaps on src/
+    // -------------------------------------------------------------------------
+    {
+      "label": "📊 AQE: Coverage Gaps (src/)",
+      "type": "shell",
+      "command": "aqe",
+      "args": [
+        "coverage",
+        "--gaps",
+        "--threshold", "80",
+        "src/"
+      ],
+      "group": "test",
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      }
+    },
+
+    // -------------------------------------------------------------------------
+    // 5. Quality gate (pass/fail verdict for the whole project)
+    // -------------------------------------------------------------------------
+    {
+      "label": "✅ AQE: Quality Gate",
+      "type": "shell",
+      "command": "aqe",
+      "args": [
+        "quality",
+        "--gate",
+        "-F", "markdown",
+        "-o", "${workspaceFolder}/.aqe-quality-gate.md"
+      ],
+      "group": "test",
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      }
+    },
+
+    // -------------------------------------------------------------------------
+    // 6. Generate tests for the current file
+    // -------------------------------------------------------------------------
+    {
+      "label": "🧪 AQE: Generate Tests (current file)",
+      "type": "shell",
+      "command": "aqe",
+      "args": [
+        "test", "generate",
+        "${file}",
+        "--framework", "vitest"
+      ],
+      "group": "test",
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      }
+    },
+
+    // -------------------------------------------------------------------------
+    // 7. Execute tests on the current file
+    // -------------------------------------------------------------------------
+    {
+      "label": "▶️ AQE: Run Tests (current file)",
+      "type": "shell",
+      "command": "aqe",
+      "args": [
+        "test", "execute",
+        "${file}"
+      ],
+      "group": "test",
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      },
+      "problemMatcher": "$tsc"
+    },
+
+    // -------------------------------------------------------------------------
+    // 8. Claude Code: Review current file (test-quality / spec / hallucination
+    //    checks live in 04-claude-code-commands.md as slash commands)
+    // -------------------------------------------------------------------------
+    {
+      "label": "🤖 Claude: Review current file",
+      "type": "shell",
+      "command": "claude",
+      "args": [
+        "-p",
+        "Read ${file} and perform a thorough code review. Flag: (1) security risks, (2) likely bugs, (3) weak tests if applicable. Be concise — top 5 issues with line numbers."
+      ],
+      "group": "test",
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      }
+    },
+
+    // -------------------------------------------------------------------------
+    // COMPOUND TASK: pre-commit check
+    // -------------------------------------------------------------------------
+    {
+      "label": "🚀 AQE: Pre-Commit (security + coverage + gate)",
+      "dependsOn": [
+        "🔒 AQE: Security SAST (current file's dir)",
+        "📊 AQE: Coverage Gaps (src/)",
+        "✅ AQE: Quality Gate"
+      ],
+      "dependsOrder": "sequence",
+      "group": "test",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      }
+    }
+  ],
+
+  // ===========================================================================
+  // INPUT DEFINITIONS (used by tasks above)
+  // ===========================================================================
+  "inputs": [
+    {
+      "id": "targetUrl",
+      "type": "promptString",
+      "description": "URL to validate for security threats / PII",
+      "default": "https://example.com"
+    }
+  ]
+}
+
+// =============================================================================
+// USAGE NOTES
+// =============================================================================
+//
+// 1. Save this as .vscode/tasks.json in your project.
+//
+// 2. Run tasks via:
+//    - Command Palette (Cmd/Ctrl+Shift+P) → "Tasks: Run Task"
+//    - Terminal menu → "Run Task"
+//    - Keyboard shortcut (configure in keybindings.json):
+//      {
+//        "key": "cmd+shift+s",
+//        "command": "workbench.action.tasks.runTask",
+//        "args": "🔒 AQE: Security SAST (current file's dir)"
+//      }
+//
+// 3. For run-on-save, install the "Run on Save" extension
+//    (emeraldwalk.runonsave) and add to settings.json:
+//      {
+//        "emeraldwalk.runonsave": {
+//          "commands": [
+//            {
+//              "match": "\\.(ts|js|tsx|jsx)$",
+//              "cmd": "aqe security --sast --target ${fileDirname}"
+//            }
+//          ]
+//        }
+//      }
+//
+// 4. AQE has no native --watch mode for security scans. If you want
+//    continuous feedback, combine "Run on Save" with the SAST task,
+//    or run `aqe quality --gate` from a git pre-commit hook.
+//
+// PACT ALIGNMENT:
+// - Proactive: Pre-commit task runs the gate before code reaches a PR
+// - Autonomous: Each task is a single CLI call, scriptable everywhere
+// - Collaborative: Output panels feed back into developer review
+// - Targeted: ${file} / ${fileDirname} keep tasks scoped to context
+//
+// =============================================================================

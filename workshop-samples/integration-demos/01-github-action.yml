@@ -1,0 +1,271 @@
+# =============================================================================
+# INTEGRATION DEMO #1: GitHub Action — Run Agentic QE on Every PR
+#
+# Workshop: Quality Engineering in the Agentic Age
+# Phase: ORCHESTRATE
+#
+# This workflow installs the REAL `agentic-qe` package and runs:
+#   1. Security SAST scan on changed files
+#   2. Coverage gap analysis
+#   3. Quality gate verdict
+#
+# Findings are posted as PR comments. SAST output is also uploaded as a SARIF
+# file so it appears in the GitHub Security tab.
+# =============================================================================
+
+name: Agentic QE Review
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches: [main, develop]
+
+  # Allow manual trigger for testing
+  workflow_dispatch:
+    inputs:
+      job:
+        description: 'Specific job to run (or "all")'
+        required: false
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - security
+          - coverage
+          - quality-gate
+
+permissions:
+  contents: read
+  pull-requests: write   # post PR comments
+  security-events: write # upload SARIF for code-scanning
+
+env:
+  NODE_VERSION: '20'
+  ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+
+jobs:
+  # ---------------------------------------------------------------------------
+  # Job 1: Security SAST scan (real agentic-qe + SARIF upload)
+  # ---------------------------------------------------------------------------
+  security-scan:
+    name: 🔒 AQE Security SAST
+    runs-on: ubuntu-latest
+    if: github.event.inputs.job == 'all' || github.event.inputs.job == 'security' || github.event.inputs.job == ''
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # full history for diff
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install Agentic QE
+        run: |
+          npm install -g agentic-qe
+          aqe --version
+
+      - name: Initialize AQE
+        run: aqe init --auto --minimal
+
+      - name: Get changed files
+        id: changed
+        run: |
+          # Build a colon-separated list of changed source files
+          FILES=$(git diff --name-only origin/${{ github.base_ref }}...HEAD \
+            | grep -E '\.(ts|js|tsx|jsx|py|java|rb|go)$' \
+            | tr '\n' ' ' || true)
+          echo "files=$FILES" >> $GITHUB_OUTPUT
+          echo "Changed files: $FILES"
+
+      - name: Run Security SAST
+        if: steps.changed.outputs.files != ''
+        run: |
+          # Scan each changed file's directory (SAST works on dirs)
+          mkdir -p .aqe-out
+          aqe security --sast --target . -F sarif -o .aqe-out/security.sarif
+          aqe security --sast --target . -F markdown -o .aqe-out/security.md
+        continue-on-error: true
+
+      - name: Upload SARIF to GitHub Security
+        if: steps.changed.outputs.files != '' && hashFiles('.aqe-out/security.sarif') != ''
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: .aqe-out/security.sarif
+          category: aqe-security
+
+      - name: Post Security comment on PR
+        if: steps.changed.outputs.files != ''
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const path = '.aqe-out/security.md';
+            const report = fs.existsSync(path)
+              ? fs.readFileSync(path, 'utf8')
+              : '_No security findings._';
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: `## 🔒 AQE Security Report\n\n${report}`
+            });
+
+  # ---------------------------------------------------------------------------
+  # Job 2: Coverage gaps on the codebase
+  # ---------------------------------------------------------------------------
+  coverage:
+    name: 📊 AQE Coverage Gaps
+    runs-on: ubuntu-latest
+    if: github.event.inputs.job == 'all' || github.event.inputs.job == 'coverage' || github.event.inputs.job == ''
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install project + Agentic QE
+        run: |
+          npm ci
+          npm install -g agentic-qe
+          aqe init --auto --minimal
+
+      - name: Run coverage analysis
+        run: |
+          mkdir -p .aqe-out
+          aqe coverage --gaps --threshold 80 -F markdown -o .aqe-out/coverage.md src/ || true
+        continue-on-error: true
+
+      - name: Post coverage comment
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const path = '.aqe-out/coverage.md';
+            const report = fs.existsSync(path)
+              ? fs.readFileSync(path, 'utf8')
+              : '_No coverage data available._';
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: `## 📊 AQE Coverage Report\n\n${report}`
+            });
+
+  # ---------------------------------------------------------------------------
+  # Job 3: Quality gate (pass/fail verdict)
+  # ---------------------------------------------------------------------------
+  quality-gate:
+    name: ✅ AQE Quality Gate
+    runs-on: ubuntu-latest
+    if: github.event.inputs.job == 'all' || github.event.inputs.job == 'quality-gate' || github.event.inputs.job == ''
+    needs: [security-scan, coverage]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install project + Agentic QE
+        run: |
+          npm ci
+          npm install -g agentic-qe
+          aqe init --auto --minimal
+
+      - name: Run quality gate
+        id: gate
+        run: |
+          mkdir -p .aqe-out
+          aqe quality --gate -F markdown -o .aqe-out/quality.md
+        continue-on-error: true
+
+      - name: Post quality verdict
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const path = '.aqe-out/quality.md';
+            const report = fs.existsSync(path)
+              ? fs.readFileSync(path, 'utf8')
+              : '_Quality gate did not produce output._';
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: `## ✅ AQE Quality Gate\n\n${report}`
+            });
+
+  # ---------------------------------------------------------------------------
+  # Job 4: Summary
+  # ---------------------------------------------------------------------------
+  summary:
+    name: 📋 AQE Summary
+    runs-on: ubuntu-latest
+    needs: [security-scan, coverage, quality-gate]
+    if: always()
+
+    steps:
+      - name: Generate summary
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const results = {
+              security: '${{ needs.security-scan.result }}',
+              coverage: '${{ needs.coverage.result }}',
+              qualityGate: '${{ needs.quality-gate.result }}'
+            };
+            const e = (s) => s === 'success' ? '✅'
+              : s === 'failure' ? '❌'
+              : s === 'skipped' ? '⏭️' : '⚠️';
+
+            const summary = `## 📋 Agentic QE Summary
+
+            | Check | Status |
+            |-------|--------|
+            | Security SAST | ${e(results.security)} ${results.security} |
+            | Coverage Gaps | ${e(results.coverage)} ${results.coverage} |
+            | Quality Gate  | ${e(results.qualityGate)} ${results.qualityGate} |
+
+            ---
+            *Powered by [agentic-qe](https://github.com/proffesor-for-testing/agentic-qe) — \`npm install -g agentic-qe\`*
+            `;
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: summary
+            });
+
+# =============================================================================
+# USAGE NOTES
+# =============================================================================
+#
+# 1. Add ANTHROPIC_API_KEY to repository secrets:
+#    Settings → Secrets and variables → Actions → New repository secret
+#
+# 2. The SAST job uploads SARIF to the Security tab via codeql-action.
+#    Make sure GitHub Advanced Security is enabled (free for public repos).
+#
+# 3. Customize which jobs run via the workflow_dispatch input.
+#
+# PACT ALIGNMENT:
+#   Proactive    — runs automatically before human review
+#   Autonomous   — each job runs independently, fans into a single summary
+#   Collaborative — Markdown comments + SARIF give humans actionable context
+#   Targeted     — security focuses on diff scope, coverage on src/
+# =============================================================================

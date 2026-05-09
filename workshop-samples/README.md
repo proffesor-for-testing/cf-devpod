@@ -30,113 +30,131 @@ workshop-samples/
 
 | Tool | Install | Purpose |
 |------|---------|---------|
-| **Agentic QE** (`aqe`) | `npm install -g agentic-qe` | Security SAST, coverage, quality gates, test generation |
-| **Claude Code** (`claude`) | `npm install -g @anthropic-ai/claude-code` | Conversational analysis (test quality, spec review, hallucination detection) |
+| **Agentic QE** (`aqe`) | `npm install -g agentic-qe` | Code complexity, coverage gaps, quality gates, URL safety |
+| **Claude Code** (`claude`) | `npm install -g @anthropic-ai/claude-code` | Conversational analysis via 55 specialized **`@qe-...` agents** installed by `aqe init` |
+| **TypeScript** (`tsc`) | `npm install -g typescript` | Required by `aqe code index` for AST analysis |
 
-Both are pre-installed inside the workshop devcontainer (see `.devcontainer/install-tools.sh`). Verify:
+All three are pre-installed inside the workshop devcontainer. Verify:
 
 ```bash
 aqe --version       # 3.9.x or newer
 claude --version
+tsc --version
 ```
 
-> **Heads up:** Agentic QE does **not** ship a `verify-tests`, `spec-validator`, `code-review`, or `scan` subcommand. For those, we use Claude Code with a precise prompt or a slash command (see `integration-demos/04-claude-code-commands.md`). Don't expect `aqe-fleet` — that's a fictional CLI; the real binary is `aqe`.
+> **First time?** Run `aqe init --auto --minimal` once at the workshop root. It installs the 55 `@qe-...` Claude Code agents into `.claude/agents/v3/` and configures the MCP server. Without this step, `@qe-...` agent names won't be recognized in Claude Code.
 
 ---
 
 ## Buggy Samples (TEST Phase)
 
-These artifacts contain intentional bugs. Each file has an "Answer Key" at the bottom (in comments) — don't peek until you've tried.
+Each sample contains an intentional bug. The flow is:
 
-| # | File | Bug Type | Tool to use |
-|---|------|----------|-------------|
-| 1 | `01-api-auth-bypass.ts` | Debug flag bypasses auth | `aqe security --sast` |
-| 2 | `02-tests-wrong-behavior.ts` | Tests pass but verify wrong things | Claude Code `/verify-tests` |
-| 3 | `03-spec-contradictions.md` | 11 contradictions in requirements | Claude Code `/spec-check` |
-| 4 | `04-hallucinated-api.ts` | AI-generated code with fake APIs | Claude Code `/hallucination-check` |
+1. **AQE flags the *shape* of the problem** with a fast deterministic check (`aqe coverage --gaps` or `aqe code complexity`).
+2. **A specialized `@qe-...` agent finds the actual bug** in Claude Code.
+3. **You compare** — what did each tool catch that you missed?
 
-### How to Use
+| # | File | Bug | AQE preface | Agent (in Claude Code) |
+|---|------|-----|-------------|------------------------|
+| 1 | `01-api-auth-bypass.ts` | Debug flag bypasses auth | `aqe coverage --gaps` flags `missing-security-check: Cover auth bypass and injection attacks` | `@qe-security-scanner` |
+| 2 | `02-tests-wrong-behavior.ts` | Tests pass but verify nothing | `aqe code complexity` shows cyclomatic 16, "Estimated bugs: 3.883" | `@qe-mutation-tester` |
+| 3 | `03-spec-contradictions.md` | 11 contradictions in requirements | (no AQE preface — pure requirements analysis) | `@qe-requirements-validator` |
+| 4 | `04-hallucinated-api.ts` | AI-generated code with fake APIs | `aqe code complexity` shows hotspots | `@qe-code-reviewer` |
+
+### Step 0 — One-time setup (run once from the workshop root)
 
 ```bash
-# 1. Security scan — real aqe CLI
-aqe security --sast --target workshop-samples/buggy-samples/
-
-# 2. Verify test quality — Claude Code (start a session, then run the slash command)
-claude
-> /verify-tests workshop-samples/buggy-samples/02-tests-wrong-behavior.ts
-
-# 3. Spec contradictions
-> /spec-check workshop-samples/buggy-samples/03-spec-contradictions.md
-
-# 4. Hallucinated API check
-> /hallucination-check workshop-samples/buggy-samples/04-hallucinated-api.ts
+# Inside the workshop folder:
+aqe init --auto --minimal     # installs 55 @qe-... agents into .claude/agents/v3/
 ```
 
-Slash command setup is in `integration-demos/04-claude-code-commands.md` (create `.claude/commands/*.md` once and they're available everywhere in the project).
+### Step 1 — Run the AQE preface
 
-### Workshop Exercise
+```bash
+# Coverage gaps — flags WHICH file is risky and WHY
+aqe coverage --gaps --threshold 80 workshop-samples/buggy-samples/
 
-1. **Manual Review** (5 min) — Look at the file yourself. What issues do you find?
-2. **Agent Review** (5 min) — Run the corresponding tool above. What does it catch?
-3. **Compare** (5 min) — What did the agent find that you missed? What did you catch that the agent missed?
-4. **Debrief** — Discuss complementary strengths of human + agent review.
+# Complexity — shows hotspots
+aqe code complexity workshop-samples/buggy-samples/
+```
+
+### Step 2 — Hand each sample to its specialist agent inside Claude Code
+
+```bash
+# Start a Claude Code session at the workshop root
+claude
+```
+
+Then in the Claude Code prompt:
+
+```
+@qe-security-scanner  Review workshop-samples/buggy-samples/01-api-auth-bypass.ts.
+                      Identify any authorization bypass paths. Quote the line(s),
+                      explain the impact, propose a fix.
+
+@qe-mutation-tester   Audit workshop-samples/buggy-samples/02-tests-wrong-behavior.ts.
+                      Which tests pass but don't actually verify behavior? For each weak
+                      test, quote it and propose a stronger assertion.
+
+@qe-requirements-validator  Read workshop-samples/buggy-samples/03-spec-contradictions.md.
+                            List every contradiction, ambiguity, and numeric inconsistency.
+                            Quote each conflicting pair.
+
+@qe-code-reviewer     Review workshop-samples/buggy-samples/04-hallucinated-api.ts.
+                      The code is AI-generated. Verify every URL, parameter name,
+                      and response field against the real OpenWeatherMap docs.
+                      Flag anything that looks invented.
+```
+
+### Workshop Exercise (per sample, ~5 min)
+
+1. **Manual review** (1 min) — Look at the file yourself. What do you find?
+2. **AQE preface** (30 sec) — Run the `aqe ...` command from the table. What does it surface?
+3. **Specialist agent** (2 min) — Send the prompt above. What does the agent catch?
+4. **Compare** (90 sec) — What did the agent find that you missed? What did you catch that the agent missed?
 
 ---
 
 ## Integration Demos (ORCHESTRATE Phase)
 
-Four ways to integrate Agentic QE + Claude Code into your workflow.
+Four ways to wire AQE + Claude Code into a real workflow.
 
 | # | File | Pattern | Use Case |
 |---|------|---------|----------|
-| 1 | `01-github-action.yml` | CI/CD | Automated PR review with SARIF upload |
-| 2 | `02-vscode-tasks.json` | IDE | On-demand tasks bound to VS Code Command Palette |
-| 3 | `03-cli-commands.sh` | Terminal | Ad-hoc exploration, pipelines, Makefile targets |
-| 4 | `04-claude-code-commands.md` | Claude Code | Project-scoped slash commands |
+| 1 | `01-github-action.yml` | CI/CD | Coverage gaps + complexity + quality gate on every PR |
+| 2 | `02-vscode-tasks.json` | IDE | VS Code Command Palette tasks |
+| 3 | `03-cli-commands.sh` | Terminal | Pipelines, Makefile targets, pre-commit |
+| 4 | `04-claude-code-commands.md` | Claude Code | Project-scoped slash commands (alternative to `@qe-...` agents) |
 
-### GitHub Action
-
-Runs `aqe security --sast` (with SARIF upload), coverage gap analysis, and quality gate on every PR. Posts findings as PR comments.
-
-```yaml
-# Install at: .github/workflows/aqe-review.yml
-# Requires:   ANTHROPIC_API_KEY repository secret
-# Adds:       Findings to the GitHub Security tab via SARIF
-```
-
-### VS Code Tasks
-
-Run AQE checks from the Command Palette or a keyboard shortcut.
-
-```json
-// Install at: .vscode/tasks.json
-// Access:     Cmd/Ctrl+Shift+P → "Tasks: Run Task"
-```
-
-### CLI Commands
-
-One-liners for exploration sessions, pre-commit hooks, or Makefile targets.
+### What we use AQE for
 
 ```bash
-# Working examples (all use the real `aqe` binary):
-aqe security --sast --target src/
-aqe coverage --gaps --threshold 80 src/
-aqe quality --gate
-aqe test generate src/utils/parser.ts --framework vitest
+aqe coverage --gaps --threshold 80 src/   # phantom-gap detection (Ghost Intent Coverage)
+aqe code complexity src/                  # cyclomatic, cognitive, Halstead bug estimate
+aqe code deps src/                        # dependency graph
+aqe code index src/                       # build searchable AST index
+aqe quality --gate                        # 7-check pass/fail verdict
+aqe security --url-validate <url>         # URL + PII safety check
 ```
 
-### Claude Code Commands
+### What we use Claude Code agents for
 
-Project-scoped slash commands stored in `.claude/commands/*.md`.
+Anything requiring judgment: security review, test-quality verification, spec analysis, hallucinated-API detection, refactoring proposals. Invoke with `@qe-<agent-name>` inside a Claude Code session.
 
-```
-# Inside a Claude Code session:
-/security src/api/auth.ts
-/review
-/verify-tests tests/cart.test.ts
-/spec-check docs/requirements.md
-/quick-check src/utils/parser.ts
-```
+The 55 installed agents are listed in `.claude/agents/v3/` after `aqe init`. The ones we use today:
+
+| Agent | Specialty |
+|-------|-----------|
+| `@qe-security-scanner` | SAST/DAST/dep scanning, secrets, OWASP |
+| `@qe-mutation-tester` | Test-suite effectiveness, weak-assertion detection |
+| `@qe-requirements-validator` | Acceptance-criteria testability, contradiction detection |
+| `@qe-code-reviewer` | Quality, maintainability, standards compliance |
+
+### Commands we deliberately don't show
+
+- `aqe security --sast / --dast / --compliance` — current build doesn't surface findings reliably; for security review use `@qe-security-scanner` instead
+- `aqe test generate` — produces non-compiling output for files whose names aren't valid JS identifiers (e.g. anything with hyphens or leading digits). **Experimental.** If you want to try, copy the source to a clean filename first
+- `aqe code search` — index-based semantic search currently returns 0 hits for our buggy samples
 
 ---
 
@@ -144,10 +162,10 @@ Project-scoped slash commands stored in `.claude/commands/*.md`.
 
 | Pattern | Proactive | Autonomous | Collaborative | Targeted |
 |---------|-----------|------------|---------------|----------|
-| GitHub Action  | Runs before merge | No human trigger | Comments + SARIF for review | PR scope only |
+| GitHub Action  | Runs before merge | No human trigger | Comments on the PR | PR scope only |
 | VS Code Tasks  | Pre-commit task | Background-friendly | Output panels | `${file}` / `${fileDirname}` |
-| CLI            | Pre-commit hooks | Scriptable, pipeable | Markdown / JSON / SARIF outputs | `--target` arg |
-| Claude Code    | In-conversation | Slash commands | Dialogue format | Context-aware |
+| CLI            | Pre-commit hooks | Scriptable, pipeable | Markdown / JSON outputs | `--target` arg |
+| Claude Code    | In-conversation | Agents work autonomously | Dialogue format | Context-aware via `@qe-...` |
 
 ---
 
@@ -155,15 +173,16 @@ Project-scoped slash commands stored in `.claude/commands/*.md`.
 
 ### TEST Phase (30 min)
 
-1. Introduce samples (5 min)
-2. Hands-on with agents (15 min) — security via `aqe`, the rest via Claude Code
-3. Compare findings (5 min)
-4. Debrief (5 min)
+1. Step 0 — `aqe init --auto --minimal` (live, 30 sec) → 55 agents installed
+2. Introduce buggy samples (5 min)
+3. Hands-on with AQE prefaces + `@qe-...` agents (15 min)
+4. Compare findings (5 min)
+5. Debrief (5 min)
 
 ### ORCHESTRATE Phase (20 min)
 
 1. PACT principles (5 min)
-2. Demo: multi-agent workflow (7 min)
+2. Demo: multi-agent CI/CD (7 min)
 3. Integration options (6 min)
 4. Choose your path (2 min)
 
@@ -171,26 +190,26 @@ Project-scoped slash commands stored in `.claude/commands/*.md`.
 
 ## Instructor Notes
 
-### Timing Tips
+### Timing tips
 
-- Buggy samples: 3–4 minutes per sample
-- Don't reveal answer keys until discussion
-- The CLI demo (`aqe security --sast`) is fastest for live presentation
-- The GitHub Action is best shown via a pre-recorded PR
+- The `aqe init` step is the only one with non-trivial install time (~10 sec post-cold-start). Run it during the slide intro so it's done before hands-on.
+- Buggy samples: 3–4 minutes per sample is plenty.
+- Don't reveal answer keys until the discussion at the end of each sample.
+- The `aqe coverage --gaps` Ghost Intent demo on sample 1 is a strong opener — it points at "auth bypass and injection attacks" before any agent has read the file.
 
-### Common Questions
+### Common questions
 
-**Q: Why use agents if they don't catch everything?**
-A: Complementary strengths. Agents catch what humans miss (consistency, thoroughness). Humans catch what agents miss (context, business logic, intent).
+**Q: Why use AQE at all if Claude Code agents do the heavy lifting?**
+A: Different speeds. AQE is deterministic and instant — perfect for CI gates and pre-commit hooks. Agents are slower but reason about meaning. The pattern is *AQE narrows where to look, agents look*. You don't pay token cost on every commit; you pay it on the few files AQE flags.
+
+**Q: Why don't we use `aqe security --sast`?**
+A: In the current build it doesn't surface findings reliably even on synthetic test cases (hardcoded credentials, `eval(userInput)`, command injection). The `@qe-security-scanner` agent does. We're showing what works today.
 
 **Q: Won't this make testers obsolete?**
-A: No — it makes them more effective. Agents handle routine checks; humans focus on judgment and exploration.
+A: No — it makes them more effective. Agents handle routine checks; humans focus on judgment, exploration, and deciding what's worth automating.
 
 **Q: How much does this cost?**
-A: Depends on usage. A typical PR review costs ~$0.05–$0.15 in Claude API calls. Most teams find this trivial compared to bug-escape costs.
-
-**Q: Why doesn't `aqe code-review` exist?**
-A: Code review is the kind of judgment task LLMs handle conversationally. Agentic QE focuses on deterministic, scriptable checks (SAST, coverage, gates, generation). For code-review-style analysis we use Claude Code with structured prompts — see `04-claude-code-commands.md`.
+A: A typical `@qe-...` invocation costs $0.01–$0.05 in Claude API calls. AQE CLI calls are free. A full workshop session burns well under $1 per attendee.
 
 ---
 

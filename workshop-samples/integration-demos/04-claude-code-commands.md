@@ -1,369 +1,201 @@
-# Integration Demo #4: Claude Code Slash Commands
+# Integration Demo #4: Claude Code — Agents vs Slash Commands
 
 **Workshop: Quality Engineering in the Agentic Age**
 **Phase: ORCHESTRATE**
 
-Claude Code supports custom slash commands that integrate Agentic QE agents directly into your development workflow. This guide shows how to set up and use these commands.
+Claude Code has two complementary ways to inject quality engineering into a session:
+
+| Mechanism | Where it lives | When to use |
+|-----------|----------------|-------------|
+| **`@qe-...` agents** | `.claude/agents/v3/` (installed by `aqe init`) | Specialized reasoning — security, mutation testing, requirements validation, code review |
+| **Slash commands** | `.claude/commands/*.md` (you write them) | Repeatable prompts your whole team uses — quick check before commit, custom org rules |
+
+**The workshop primarily uses `@qe-...` agents** because they ship pre-built and pre-trained for QE tasks. Slash commands are a useful customization layer on top.
 
 ---
 
 ## Setup
 
-Claude Code looks for slash commands in two places:
-
-- `.claude/commands/` (project-scoped — checked in with the repo)
-- `~/.claude/commands/` (user-scoped — available in every project)
-
-For the workshop we'll use the **project scope** so the commands travel with the workshop folder.
-
-### 1. Create the project commands directory
+### 1. Install the `@qe-...` agents (one-time per project)
 
 ```bash
-# From the workshop root
+# At the workshop root
+aqe init --auto --minimal
+```
+
+This installs **55 specialist agents** into `.claude/agents/v3/`. They become invokable in any Claude Code session opened in this directory.
+
+```bash
+ls .claude/agents/v3/ | head -10
+# qe-accessibility-auditor.md
+# qe-bdd-generator.md
+# qe-chaos-engineer.md
+# qe-code-complexity.md
+# qe-code-intelligence.md
+# qe-code-reviewer.md
+# qe-coverage-specialist.md
+# qe-defect-predictor.md
+# qe-dependency-mapper.md
+# qe-deployment-advisor.md
+```
+
+### 2. (Optional) Add custom slash commands
+
+```bash
+# Project-scoped — checked in with the repo
 mkdir -p .claude/commands
 ```
 
-### 2. Add Agentic QE commands
-
-Create the following files in `.claude/commands/`:
+Then create files like `.claude/commands/quick-check.md` with the YAML-frontmatter format shown later in this document.
 
 ---
 
-## Command: `/security`
+## Agents we use in the workshop
 
-**File:** `.claude/commands/security.md`
+| Agent | Specialty | Used for sample |
+|-------|-----------|-----------------|
+| `@qe-security-scanner` | SAST/DAST/dep scanning, secrets, OWASP coverage | `01-api-auth-bypass.ts` |
+| `@qe-mutation-tester` | Test-suite effectiveness, weak-assertion detection | `02-tests-wrong-behavior.ts` |
+| `@qe-requirements-validator` | Acceptance-criteria testability, contradiction detection | `03-spec-contradictions.md` |
+| `@qe-code-reviewer` | Quality, maintainability, standards compliance | `04-hallucinated-api.ts` |
 
-```markdown
----
-name: security
-description: Run security analysis on a file or the current context
----
+### Invoking an agent
 
-Analyze the following code for security vulnerabilities:
+Inside a Claude Code session:
 
-$ARGUMENTS
-
-Focus on:
-1. Authentication and authorization issues
-2. Input validation and sanitization
-3. SQL injection, XSS, and other injection attacks
-4. Sensitive data exposure
-5. Debug code or test credentials left in production
-6. Insecure dependencies or configurations
-
-For each issue found:
-- Describe the vulnerability
-- Explain the risk (what could an attacker do?)
-- Provide a specific fix
-
-If no specific file is provided, analyze the most recently discussed code.
+```
+@qe-security-scanner Review workshop-samples/buggy-samples/01-api-auth-bypass.ts.
+                     Identify any authorization bypass paths. Quote the line(s),
+                     explain the impact, propose a fix.
 ```
 
----
-
-## Command: `/review`
-
-**File:** `.claude/commands/review.md`
-
-```markdown
----
-name: review
-description: Perform a thorough code review
----
-
-Perform a comprehensive code review on:
-
-$ARGUMENTS
-
-Evaluate:
-1. **Correctness**: Does the code do what it's supposed to?
-2. **Security**: Are there any vulnerabilities?
-3. **Performance**: Any obvious inefficiencies?
-4. **Readability**: Is the code clear and maintainable?
-5. **Error Handling**: Are edge cases covered?
-6. **Testing**: Is the code testable? Are tests adequate?
-
-Provide feedback in this format:
-- 🔴 **Critical**: Must fix before merge
-- 🟡 **Suggestion**: Would improve the code
-- 💡 **Note**: FYI, optional consideration
-
-Be direct and specific. Don't just point out problems—suggest solutions.
-```
-
----
-
-## Command: `/verify-tests`
-
-**File:** `.claude/commands/verify-tests.md`
-
-```markdown
----
-name: verify-tests
-description: Verify test quality and coverage
----
-
-Analyze these tests for quality issues:
-
-$ARGUMENTS
-
-Check for:
-1. **Weak Assertions**: Tests that pass but don't verify correct behavior
-2. **Missing Edge Cases**: Boundaries, nulls, empty values, large inputs
-3. **Coincidental Correctness**: Tests that pass for wrong reasons
-4. **Test Independence**: Tests that depend on each other or global state
-5. **Flakiness Risk**: Timing dependencies, external services, randomness
-6. **Coverage Gaps**: Code paths without corresponding tests
-
-For each issue:
-- Quote the problematic test
-- Explain why it's problematic
-- Suggest a better test
-
-Focus on test quality, not just coverage numbers.
-```
-
----
-
-## Command: `/spec-check`
-
-**File:** `.claude/commands/spec-check.md`
-
-```markdown
----
-name: spec-check
-description: Validate requirements for contradictions and ambiguity
----
-
-Analyze this specification/requirements document:
-
-$ARGUMENTS
-
-Identify:
-1. **Contradictions**: Requirements that conflict with each other
-2. **Ambiguities**: Vague terms, undefined behavior, missing details
-3. **Incompleteness**: Missing requirements, undefined edge cases
-4. **Testability**: Requirements that can't be objectively verified
-5. **Numeric Inconsistencies**: Math that doesn't add up (e.g., uptime vs maintenance windows)
-
-For each issue:
-- Quote the conflicting/problematic requirements
-- Explain the conflict or ambiguity
-- Suggest a resolution or clarification needed
-
-Be thorough—contradictions often hide in seemingly unrelated sections.
-```
-
----
-
-## Command: `/hallucination-check`
-
-**File:** `.claude/commands/hallucination-check.md`
-
-```markdown
----
-name: hallucination-check
-description: Verify AI-generated code for hallucinated APIs or patterns
----
-
-This code may have been AI-generated. Check for hallucinations:
-
-$ARGUMENTS
-
-Verify:
-1. **API Endpoints**: Do these URLs/endpoints actually exist?
-2. **Parameter Names**: Are these the correct parameter names for this API?
-3. **Response Structures**: Does the API actually return data in this format?
-4. **Library Methods**: Do these methods exist with these signatures?
-5. **Configurations**: Are these valid configuration options?
-6. **Logical Flow**: Does the code make sense (e.g., using data before it's fetched)?
-
-For each potential hallucination:
-- Flag the suspicious code
-- Explain why it might be hallucinated
-- Suggest how to verify (documentation link, test approach)
-
-AI-generated code often looks plausible but uses invented APIs or wrong parameters.
-```
-
----
-
-## Command: `/quick-check`
-
-**File:** `.claude/commands/quick-check.md`
-
-```markdown
----
-name: quick-check
-description: Fast quality check for a file (30-second scan)
----
-
-Quick quality scan of:
-
-$ARGUMENTS
-
-In under 30 seconds, identify the TOP 3 most important issues in these categories:
-- 🔒 Security risk
-- 🐛 Likely bug
-- ⚠️ Code smell
-
-Be concise. One sentence per issue. Include line numbers.
-
-Format:
-🔒 Line 42: Auth bypass via debug flag
-🐛 Line 87: Null check missing before access
-⚠️ Line 15: Magic number should be constant
-
-Only flag significant issues. If the code looks solid, say so briefly.
-```
-
----
-
-## Usage Examples
-
-### In Claude Code Terminal
+Headless from the shell:
 
 ```bash
-# Check a specific file for security issues
-/security src/api/auth.ts
-
-# Review the code we just discussed
-/review
-
-# Verify tests are actually testing the right things
-/verify-tests tests/cart.test.ts
-
-# Check a spec document for contradictions
-/spec-check docs/requirements.md
-
-# Quick check before committing
-/quick-check src/utils/parser.ts
-
-# Check if AI-generated code has hallucinations
-/hallucination-check generated/weather-api.ts
+claude -p "@qe-security-scanner Review workshop-samples/buggy-samples/01-api-auth-bypass.ts. Identify any authorization bypass paths. Quote the line(s), explain the impact, propose a fix."
 ```
 
-### In Conversation Context
+The agent reads the file, reasons about it, and returns a structured response. You can chain more turns by continuing the conversation.
 
-```
-User: Here's my authentication middleware:
-[paste code]
+---
 
-User: /security
+## Buggy-Samples Walkthrough (TEST phase)
 
-Claude: [Analyzes the pasted code for security issues]
+Run the AQE preface first, then hand each sample to its agent:
+
+```bash
+# Step 1 — AQE preface (free, deterministic, fast)
+aqe coverage --gaps --threshold 80 workshop-samples/buggy-samples/
+aqe code complexity workshop-samples/buggy-samples/
+
+# Step 2 — Specialist agents (in a Claude Code session, or via -p)
+claude -p "@qe-security-scanner Review workshop-samples/buggy-samples/01-api-auth-bypass.ts. Identify any auth bypass. Quote the line(s)."
+claude -p "@qe-mutation-tester Audit workshop-samples/buggy-samples/02-tests-wrong-behavior.ts. Quote each weak test, propose a stronger assertion."
+claude -p "@qe-requirements-validator Read workshop-samples/buggy-samples/03-spec-contradictions.md. List every contradiction, ambiguity, numeric inconsistency."
+claude -p "@qe-code-reviewer Review workshop-samples/buggy-samples/04-hallucinated-api.ts. Verify every URL, parameter, and field against real APIs. Flag invented ones."
 ```
 
 ---
 
-## Workshop Exercise
+## Custom Slash Commands (optional layer)
 
-### Step 1: Install the Commands
-
-Create `.claude/commands/` at the workshop root and add each command above as its own `.md` file (filename = command name). For example:
-
-```bash
-# From the workshop root
-mkdir -p .claude/commands
-
-# Then create files manually with your editor, e.g.:
-#   .claude/commands/security.md
-#   .claude/commands/review.md
-#   .claude/commands/verify-tests.md
-#   .claude/commands/spec-check.md
-#   .claude/commands/hallucination-check.md
-#   .claude/commands/quick-check.md
-```
-
-Each file uses the YAML-frontmatter format shown earlier in this document.
-
-### Step 2: Test on Buggy Samples
-
-```bash
-# Start Claude Code from the workshop root
-claude
-
-# Then inside the Claude Code session, run:
-/security workshop-samples/buggy-samples/01-api-auth-bypass.ts
-/verify-tests workshop-samples/buggy-samples/02-tests-wrong-behavior.ts
-/spec-check workshop-samples/buggy-samples/03-spec-contradictions.md
-/hallucination-check workshop-samples/buggy-samples/04-hallucinated-api.ts
-```
-
-### Step 3: Compare Results
-
-How do the slash command results compare to:
-- Your manual review?
-- The answer keys in each file?
-
----
-
-## Creating Custom Commands
+If your team has repeatable prompts beyond what the `@qe-...` agents cover, codify them as slash commands. They live in `.claude/commands/<name>.md` (project) or `~/.claude/commands/<name>.md` (user-global).
 
 ### Template
 
 ```markdown
 ---
 name: your-command-name
-description: What it does (shown in help)
+description: One-line description shown in /help
 ---
 
 Your prompt here.
 
-$ARGUMENTS will be replaced with whatever follows the command.
+$ARGUMENTS  is replaced with whatever follows the command.
 
 Be specific about:
 - What to analyze
-- What format to use for output
+- What output format you want
 - What to focus on
 ```
 
-### Tips
+### Example: `/quick-check`
 
-1. **Be Specific**: Vague prompts get vague results
-2. **Structure Output**: Define the format you want
-3. **Set Priorities**: Tell the agent what matters most
-4. **Include Examples**: Show the output format you expect
-5. **Keep It Focused**: One command, one purpose
+**File:** `.claude/commands/quick-check.md`
+
+```markdown
+---
+name: quick-check
+description: Fast 30-second quality check on a file
+---
+
+Quick quality scan of:
+
+$ARGUMENTS
+
+In under 30 seconds, identify the TOP 3 most important issues:
+- 🔒 Security risk
+- 🐛 Likely bug
+- ⚠️ Code smell
+
+One sentence per issue. Include line numbers.
+
+Format:
+🔒 Line 42: Auth bypass via debug flag
+🐛 Line 87: Null check missing before access
+⚠️ Line 15: Magic number should be constant
+
+If the code looks solid, say so briefly.
+```
+
+Usage inside Claude Code:
+
+```
+/quick-check src/utils/parser.ts
+```
+
+### When slash commands beat agents
+
+- **Org-specific conventions** — "Check this against our internal API style guide"
+- **Quick filters** — `/quick-check` returns 3 lines, not a structured report
+- **Team-wide standardization** — checked into the repo, every dev gets the same commands
+- **Composing several agents** — "First run @qe-security-scanner, then @qe-mutation-tester on its output"
+
+### When agents beat slash commands
+
+- **Specialist domain knowledge** — `@qe-mutation-tester` knows mutation operators; you'd have to teach a slash command those
+- **Multi-turn reasoning** — agents can converse, slash commands fire-and-forget
+- **No prompt engineering needed** — the agent already knows what good output looks like
+
+---
+
+## Combining With Agentic QE
+
+| Need | Tool | Rationale |
+|------|------|-----------|
+| Coverage gaps / phantom-gap detection | `aqe coverage --gaps` | Free, deterministic, instant |
+| Code complexity, hotspots | `aqe code complexity` | No tokens, exact metrics |
+| Dependency map | `aqe code deps` | Same |
+| Quality gate verdict | `aqe quality --gate` | Same |
+| URL safety check | `aqe security --url-validate` | Same |
+| Security review (auth, injection, OWASP) | `@qe-security-scanner` | Reasoning required |
+| Test-suite quality audit | `@qe-mutation-tester` | Reasoning required |
+| Spec contradiction detection | `@qe-requirements-validator` | Reasoning required |
+| Code review (hallucinations, judgment) | `@qe-code-reviewer` | Reasoning required |
+
+The mental model: **AQE narrows where to look, agents look.** You don't pay per-token cost on every commit — you pay it on the few files AQE flags.
 
 ---
 
 ## PACT Alignment
 
-| Principle | How Commands Implement It |
+| Principle | How agents implement it |
 |-----------|--------------------------|
-| **Proactive** | Run `/quick-check` before every commit |
-| **Autonomous** | Commands work independently without setup |
-| **Collaborative** | Output designed for human decision-making |
-| **Targeted** | Each command focuses on specific quality aspect |
+| **Proactive** | Run agents in pre-PR Actions; bind quick-check tasks to keyboard shortcuts |
+| **Autonomous** | Each agent invocation is independent — chain them with shell pipes |
+| **Collaborative** | Markdown output is built for humans; PR comments preserve context |
+| **Targeted** | `@<agent>` + a precise prompt scopes to exactly the task at hand |
 
 ---
 
-## Next Steps
-
-1. Customize commands for your team's standards
-2. Add project-specific checks (e.g., `/check-api-contracts`)
-3. Create compound commands for your workflow
-4. Share commands with your team via dotfiles repo
-
----
-
-## Combining with Agentic QE
-
-These slash commands cover analysis tasks AQE doesn't expose as CLI subcommands (test-quality verification, spec contradictions, hallucination detection). For everything else, use the real `aqe` CLI:
-
-| Need | Tool |
-|------|------|
-| Security SAST/DAST scan | `aqe security --sast --target src/` |
-| URL safety / PII | `aqe security --url-validate <url>` |
-| Code complexity | `aqe code complexity src/` |
-| Coverage gaps | `aqe coverage --gaps src/` |
-| Quality gate | `aqe quality --gate` |
-| Test generation | `aqe test generate <file>` |
-| Verify test quality | `/verify-tests` (this doc) |
-| Spec contradictions | `/spec-check` (this doc) |
-| Hallucinated APIs | `/hallucination-check` (this doc) |
-
----
-
-*Slash commands require Claude Code (`npm install -g @anthropic-ai/claude-code`). Real-CLI checks require Agentic QE (`npm install -g agentic-qe`). Both are pre-installed by `.devcontainer/install-tools.sh`.*
+*Both agents and slash commands require Claude Code (`npm install -g @anthropic-ai/claude-code`). Agents additionally require `aqe init` (`npm install -g agentic-qe` first). Both are pre-installed by `.devcontainer/install-tools.sh`.*

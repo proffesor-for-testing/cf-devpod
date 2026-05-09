@@ -8,6 +8,7 @@
 #   - GitHub CLI     (gh)
 #   - Claude Code    (@anthropic-ai/claude-code)
 #   - Agentic QE     (agentic-qe — the real package, NOT agentic-qe-fleet)
+#   - TypeScript     (typescript — required by `aqe code index`)
 #   - ccusage        (token spend visibility)
 #
 # Strategy:
@@ -268,6 +269,23 @@ else
 fi
 
 # -----------------------------------------------------------------------------
+# 4b. TypeScript — required by `aqe code index`
+# -----------------------------------------------------------------------------
+echo ""
+echo "── 🟦 TypeScript ─────────────────────────────────────────────"
+if command_exists tsc; then
+    record_status "typescript" "✅ Already Installed" "Version: $(tsc --version 2>/dev/null || echo unknown)"
+elif npm_global_install "typescript"; then
+    if command_exists tsc; then
+        record_status "typescript" "✅ Success" "Version: $(tsc --version 2>/dev/null)"
+    else
+        record_status "typescript" "⚠️ Partial" "Installed but tsc not on PATH this shell"
+    fi
+else
+    record_status "typescript" "❌ Failed" "See log tail below"
+fi
+
+# -----------------------------------------------------------------------------
 # 5. ccusage
 # -----------------------------------------------------------------------------
 echo ""
@@ -297,6 +315,23 @@ else
 fi
 
 # -----------------------------------------------------------------------------
+# 7. Initialize AQE (installs 55 @qe-... Claude Code agents into .claude/agents/v3/)
+# -----------------------------------------------------------------------------
+echo ""
+echo "── 🎯 Initializing Agentic QE (installs @qe-... agents) ──────"
+if command_exists aqe; then
+    AQE_INIT_LOG="$LOG_DIR/aqe-init.log"
+    if aqe init --auto --minimal >"$AQE_INIT_LOG" 2>&1; then
+        AGENT_COUNT=$(ls .claude/agents/v3/ 2>/dev/null | wc -l | tr -d ' ')
+        record_status "aqe-init" "✅ Success" "$AGENT_COUNT @qe-... agents installed in .claude/agents/v3/"
+    else
+        record_status "aqe-init" "⚠️ Skipped" "Run \`aqe init --auto --minimal\` manually (see log)"
+    fi
+else
+    record_status "aqe-init" "⏭️ Skipped" "aqe not installed — re-run after fixing"
+fi
+
+# -----------------------------------------------------------------------------
 # Workshop shell aliases
 # -----------------------------------------------------------------------------
 echo ""
@@ -305,28 +340,25 @@ echo "⚡ Setting up workshop shell aliases..."
 WORKSHOP_ALIASES='
 # =============================================================================
 # Craft 2026 Workshop Aliases
-# All aliases use the REAL `aqe` CLI from the agentic-qe npm package.
+# Only commands that actually work in the current `aqe` build are aliased.
+# Broken commands (security --sast, test generate, code search) are not
+# aliased — use the @qe-... agents in Claude Code for those tasks.
 # =============================================================================
 
-# Quick security scan (SAST on a path)
-alias aqe-sec="aqe security --sast --target"
+# Coverage gaps with phantom-gap detection (Ghost Intent Coverage / ADR-059)
+alias aqe-cov="aqe coverage --gaps --threshold 80 --target"
 
-# Security gate including PII URL validation
-alias aqe-url="aqe security --url-validate"
-
-# Code intelligence (complexity, deps, search)
+# Code complexity hotspots (cyclomatic, cognitive, Halstead)
 alias aqe-complex="aqe code complexity"
+
+# Dependency map
 alias aqe-deps="aqe code deps"
 
-# Coverage analysis
-alias aqe-cov="aqe coverage"
-
-# Quality gate
+# Quality gate verdict
 alias aqe-gate="aqe quality --gate"
 
-# Test commands
-alias aqe-gen="aqe test generate"
-alias aqe-run="aqe test execute"
+# URL safety + PII validation
+alias aqe-url="aqe security --url-validate"
 
 # Workshop directory shortcuts (single-quoted so git rev-parse runs at use time,
 # not at .zshrc-source time)
@@ -362,14 +394,16 @@ git config --global core.autocrlf input 2>/dev/null || true
     echo "| GitHub CLI      | ${INSTALL_STATUS[gh]:-N/A}              | ${INSTALL_NOTES[gh]:-} |"
     echo "| Claude Code     | ${INSTALL_STATUS[claude-code]:-N/A}     | ${INSTALL_NOTES[claude-code]:-} |"
     echo "| Agentic QE      | ${INSTALL_STATUS[agentic-qe]:-N/A}      | ${INSTALL_NOTES[agentic-qe]:-} |"
+    echo "| TypeScript      | ${INSTALL_STATUS[typescript]:-N/A}      | ${INSTALL_NOTES[typescript]:-} |"
     echo "| ccusage         | ${INSTALL_STATUS[ccusage]:-N/A}         | ${INSTALL_NOTES[ccusage]:-} |"
     echo "| Project deps    | ${INSTALL_STATUS[project-deps]:-N/A}    | ${INSTALL_NOTES[project-deps]:-} |"
+    echo "| AQE init        | ${INSTALL_STATUS[aqe-init]:-N/A}        | ${INSTALL_NOTES[aqe-init]:-} |"
     echo ""
 } >> "$REPORT_FILE"
 
 # Append failure-specific log tails AND manual install instructions
 FAILED_ITEMS=0
-for tool in tmux gh claude-code agentic-qe ccusage; do
+for tool in tmux gh claude-code agentic-qe typescript ccusage; do
     if [[ "${INSTALL_STATUS[$tool]:-}" == *"Failed"* ]] || [[ "${INSTALL_STATUS[$tool]:-}" == *"Partial"* ]]; then
         ((FAILED_ITEMS++))
     fi

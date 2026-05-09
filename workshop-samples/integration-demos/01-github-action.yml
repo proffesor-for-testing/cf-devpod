@@ -4,13 +4,13 @@
 # Workshop: Quality Engineering in the Agentic Age
 # Phase: ORCHESTRATE
 #
-# This workflow installs the REAL `agentic-qe` package and runs:
-#   1. Security SAST scan on changed files
-#   2. Coverage gap analysis
-#   3. Quality gate verdict
+# Strategy:
+#   AQE for fast deterministic checks   →   coverage-gaps, complexity, gate
+#   @qe-... agents for judgment tasks   →   security review on changed files
 #
-# Findings are posted as PR comments. SAST output is also uploaded as a SARIF
-# file so it appears in the GitHub Security tab.
+# We do NOT use `aqe security --sast` here — the current build doesn't
+# surface findings reliably. Security review is delegated to the
+# @qe-security-scanner agent invoked through Claude Code.
 # =============================================================================
 
 name: Agentic QE Review
@@ -20,7 +20,6 @@ on:
     types: [opened, synchronize, reopened]
     branches: [main, develop]
 
-  # Allow manual trigger for testing
   workflow_dispatch:
     inputs:
       job:
@@ -30,14 +29,14 @@ on:
         type: choice
         options:
           - all
-          - security
           - coverage
+          - complexity
           - quality-gate
+          - security-agent
 
 permissions:
   contents: read
   pull-requests: write   # post PR comments
-  security-events: write # upload SARIF for code-scanning
 
 env:
   NODE_VERSION: '20'
@@ -45,78 +44,7 @@ env:
 
 jobs:
   # ---------------------------------------------------------------------------
-  # Job 1: Security SAST scan (real agentic-qe + SARIF upload)
-  # ---------------------------------------------------------------------------
-  security-scan:
-    name: 🔒 AQE Security SAST
-    runs-on: ubuntu-latest
-    if: github.event.inputs.job == 'all' || github.event.inputs.job == 'security' || github.event.inputs.job == ''
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0  # full history for diff
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
-
-      - name: Install Agentic QE
-        run: |
-          npm install -g agentic-qe
-          aqe --version
-
-      - name: Initialize AQE
-        run: aqe init --auto --minimal
-
-      - name: Get changed files
-        id: changed
-        run: |
-          # Build a colon-separated list of changed source files
-          FILES=$(git diff --name-only origin/${{ github.base_ref }}...HEAD \
-            | grep -E '\.(ts|js|tsx|jsx|py|java|rb|go)$' \
-            | tr '\n' ' ' || true)
-          echo "files=$FILES" >> $GITHUB_OUTPUT
-          echo "Changed files: $FILES"
-
-      - name: Run Security SAST
-        if: steps.changed.outputs.files != ''
-        run: |
-          # Scan each changed file's directory (SAST works on dirs)
-          mkdir -p .aqe-out
-          aqe security --sast --target . -F sarif -o .aqe-out/security.sarif
-          aqe security --sast --target . -F markdown -o .aqe-out/security.md
-        continue-on-error: true
-
-      - name: Upload SARIF to GitHub Security
-        if: steps.changed.outputs.files != '' && hashFiles('.aqe-out/security.sarif') != ''
-        uses: github/codeql-action/upload-sarif@v3
-        with:
-          sarif_file: .aqe-out/security.sarif
-          category: aqe-security
-
-      - name: Post Security comment on PR
-        if: steps.changed.outputs.files != ''
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const fs = require('fs');
-            const path = '.aqe-out/security.md';
-            const report = fs.existsSync(path)
-              ? fs.readFileSync(path, 'utf8')
-              : '_No security findings._';
-            await github.rest.issues.createComment({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: context.issue.number,
-              body: `## 🔒 AQE Security Report\n\n${report}`
-            });
-
-  # ---------------------------------------------------------------------------
-  # Job 2: Coverage gaps on the codebase
+  # Job 1: Coverage gaps (Ghost Intent Coverage / phantom-gap detection)
   # ---------------------------------------------------------------------------
   coverage:
     name: 📊 AQE Coverage Gaps
@@ -124,26 +52,22 @@ jobs:
     if: github.event.inputs.job == 'all' || github.event.inputs.job == 'coverage' || github.event.inputs.job == ''
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '${{ env.NODE_VERSION }}', cache: 'npm' }
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
-
-      - name: Install project + Agentic QE
+      - name: Install AQE + TypeScript
         run: |
-          npm ci
-          npm install -g agentic-qe
-          aqe init --auto --minimal
+          npm install -g agentic-qe typescript
+          aqe --version
 
-      - name: Run coverage analysis
+      - name: Initialize AQE
+        run: aqe init --auto --minimal
+
+      - name: Run coverage gap analysis
         run: |
           mkdir -p .aqe-out
           aqe coverage --gaps --threshold 80 -F markdown -o .aqe-out/coverage.md src/ || true
-        continue-on-error: true
 
       - name: Post coverage comment
         uses: actions/github-script@v7
@@ -162,45 +86,92 @@ jobs:
             });
 
   # ---------------------------------------------------------------------------
-  # Job 3: Quality gate (pass/fail verdict)
+  # Job 2: Code complexity (cyclomatic, cognitive, Halstead bug estimate)
+  # ---------------------------------------------------------------------------
+  complexity:
+    name: 📈 AQE Complexity
+    runs-on: ubuntu-latest
+    if: github.event.inputs.job == 'all' || github.event.inputs.job == 'complexity' || github.event.inputs.job == ''
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '${{ env.NODE_VERSION }}', cache: 'npm' }
+
+      - name: Install AQE + TypeScript
+        run: |
+          npm install -g agentic-qe typescript
+
+      - name: Run complexity analysis on changed files
+        run: |
+          mkdir -p .aqe-out
+          : > .aqe-out/complexity.md
+
+          # Collect changed source files
+          FILES=$(git diff --name-only origin/${{ github.base_ref }}...HEAD \
+            | grep -E '\.(ts|js|tsx|jsx|py)$' || true)
+
+          if [ -z "$FILES" ]; then
+            echo "_No source files changed._" >> .aqe-out/complexity.md
+          else
+            echo "## Complexity by changed file" >> .aqe-out/complexity.md
+            echo "" >> .aqe-out/complexity.md
+            for f in $FILES; do
+              [ -f "$f" ] || continue
+              echo "### \`$f\`" >> .aqe-out/complexity.md
+              echo '```' >> .aqe-out/complexity.md
+              aqe code complexity "$f" 2>/dev/null | tail -20 >> .aqe-out/complexity.md
+              echo '```' >> .aqe-out/complexity.md
+            done
+          fi
+
+      - name: Post complexity comment
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const report = fs.existsSync('.aqe-out/complexity.md')
+              ? fs.readFileSync('.aqe-out/complexity.md', 'utf8')
+              : '_No complexity data._';
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: `## 📈 AQE Complexity Report\n\n${report}`
+            });
+
+  # ---------------------------------------------------------------------------
+  # Job 3: Quality gate — pass/fail verdict for the whole project
   # ---------------------------------------------------------------------------
   quality-gate:
     name: ✅ AQE Quality Gate
     runs-on: ubuntu-latest
     if: github.event.inputs.job == 'all' || github.event.inputs.job == 'quality-gate' || github.event.inputs.job == ''
-    needs: [security-scan, coverage]
+    needs: [coverage, complexity]
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '${{ env.NODE_VERSION }}', cache: 'npm' }
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
-
-      - name: Install project + Agentic QE
+      - name: Install project + AQE
         run: |
-          npm ci
-          npm install -g agentic-qe
+          npm ci || true
+          npm install -g agentic-qe typescript
           aqe init --auto --minimal
 
       - name: Run quality gate
-        id: gate
         run: |
           mkdir -p .aqe-out
-          aqe quality --gate -F markdown -o .aqe-out/quality.md
-        continue-on-error: true
+          aqe quality --gate -F markdown -o .aqe-out/quality.md || true
 
       - name: Post quality verdict
         uses: actions/github-script@v7
         with:
           script: |
             const fs = require('fs');
-            const path = '.aqe-out/quality.md';
-            const report = fs.existsSync(path)
-              ? fs.readFileSync(path, 'utf8')
+            const report = fs.existsSync('.aqe-out/quality.md')
+              ? fs.readFileSync('.aqe-out/quality.md', 'utf8')
               : '_Quality gate did not produce output._';
             await github.rest.issues.createComment({
               owner: context.repo.owner,
@@ -210,12 +181,71 @@ jobs:
             });
 
   # ---------------------------------------------------------------------------
-  # Job 4: Summary
+  # Job 4: @qe-security-scanner agent on changed files
+  # ---------------------------------------------------------------------------
+  security-agent:
+    name: 🛡️ @qe-security-scanner
+    runs-on: ubuntu-latest
+    if: github.event.inputs.job == 'all' || github.event.inputs.job == 'security-agent' || github.event.inputs.job == ''
+
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: actions/setup-node@v4
+        with: { node-version: '${{ env.NODE_VERSION }}', cache: 'npm' }
+
+      - name: Install Claude Code + AQE
+        run: |
+          npm install -g @anthropic-ai/claude-code agentic-qe typescript
+
+      - name: Initialize AQE (installs @qe-... agents)
+        run: aqe init --auto --minimal
+
+      - name: Get changed files
+        id: changed
+        run: |
+          FILES=$(git diff --name-only origin/${{ github.base_ref }}...HEAD \
+            | grep -E '\.(ts|js|tsx|jsx)$' | tr '\n' ' ' || true)
+          echo "files=$FILES" >> $GITHUB_OUTPUT
+
+      - name: Run @qe-security-scanner on each changed file
+        if: steps.changed.outputs.files != ''
+        run: |
+          mkdir -p .aqe-out
+          : > .aqe-out/security.md
+          for f in ${{ steps.changed.outputs.files }}; do
+            [ -f "$f" ] || continue
+            echo "### \`$f\`" >> .aqe-out/security.md
+            echo "" >> .aqe-out/security.md
+            claude -p "@qe-security-scanner Review $f. Identify any auth bypass, injection risk, hardcoded credentials, or OWASP-class vulnerabilities. Quote the line(s), explain the impact, propose a fix. If clean, say so in one line." \
+              >> .aqe-out/security.md 2>&1 || echo "_Agent invocation failed for $f_" >> .aqe-out/security.md
+            echo "" >> .aqe-out/security.md
+          done
+        continue-on-error: true
+
+      - name: Post security agent report
+        if: steps.changed.outputs.files != ''
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const report = fs.existsSync('.aqe-out/security.md')
+              ? fs.readFileSync('.aqe-out/security.md', 'utf8')
+              : '_No findings._';
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: `## 🛡️ Security Review (@qe-security-scanner)\n\n${report}`
+            });
+
+  # ---------------------------------------------------------------------------
+  # Job 5: Summary
   # ---------------------------------------------------------------------------
   summary:
     name: 📋 AQE Summary
     runs-on: ubuntu-latest
-    needs: [security-scan, coverage, quality-gate]
+    needs: [coverage, complexity, quality-gate, security-agent]
     if: always()
 
     steps:
@@ -223,10 +253,11 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            const results = {
-              security: '${{ needs.security-scan.result }}',
+            const r = {
               coverage: '${{ needs.coverage.result }}',
-              qualityGate: '${{ needs.quality-gate.result }}'
+              complexity: '${{ needs.complexity.result }}',
+              gate: '${{ needs.quality-gate.result }}',
+              security: '${{ needs.security-agent.result }}'
             };
             const e = (s) => s === 'success' ? '✅'
               : s === 'failure' ? '❌'
@@ -236,12 +267,14 @@ jobs:
 
             | Check | Status |
             |-------|--------|
-            | Security SAST | ${e(results.security)} ${results.security} |
-            | Coverage Gaps | ${e(results.coverage)} ${results.coverage} |
-            | Quality Gate  | ${e(results.qualityGate)} ${results.qualityGate} |
+            | Coverage Gaps        | ${e(r.coverage)} ${r.coverage} |
+            | Complexity (changed) | ${e(r.complexity)} ${r.complexity} |
+            | Quality Gate         | ${e(r.gate)} ${r.gate} |
+            | Security Agent       | ${e(r.security)} ${r.security} |
 
             ---
             *Powered by [agentic-qe](https://github.com/proffesor-for-testing/agentic-qe) — \`npm install -g agentic-qe\`*
+            *Security review by \`@qe-security-scanner\` (one of 55 agents installed by \`aqe init\`).*
             `;
 
             await github.rest.issues.createComment({
@@ -255,17 +288,22 @@ jobs:
 # USAGE NOTES
 # =============================================================================
 #
-# 1. Add ANTHROPIC_API_KEY to repository secrets:
-#    Settings → Secrets and variables → Actions → New repository secret
+# Required secrets:
+#   ANTHROPIC_API_KEY   for Claude Code (used by the security-agent job)
 #
-# 2. The SAST job uploads SARIF to the Security tab via codeql-action.
-#    Make sure GitHub Advanced Security is enabled (free for public repos).
+# Customize:
+#   - The `branches:` list (currently main, develop)
+#   - The file pattern in the changed-files step (currently .ts/.js/.tsx/.jsx/.py)
+#   - The complexity threshold by adding `| awk '$NF > 10'` filtering
 #
-# 3. Customize which jobs run via the workflow_dispatch input.
+# Why we don't use `aqe security --sast`:
+#   The current build returns "0 vulnerabilities" even on synthetic test cases
+#   with hardcoded credentials, eval(), and command injection. The
+#   @qe-security-scanner agent reasons about meaning, so we use that instead.
 #
 # PACT ALIGNMENT:
-#   Proactive    — runs automatically before human review
-#   Autonomous   — each job runs independently, fans into a single summary
-#   Collaborative — Markdown comments + SARIF give humans actionable context
-#   Targeted     — security focuses on diff scope, coverage on src/
+#   Proactive    — runs automatically before merge
+#   Autonomous   — each job is independent
+#   Collaborative — Markdown PR comments give humans actionable context
+#   Targeted     — security agent only runs on changed files
 # =============================================================================

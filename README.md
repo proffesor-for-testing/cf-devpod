@@ -66,8 +66,9 @@ The container is the same Debian 12 base as the [`qe-ruvector`](https://github.c
 
 | Tool | Package | Purpose |
 |------|---------|---------|
-| **Claude Code** | `@anthropic-ai/claude-code` | AI-powered development CLI |
-| **Agentic QE** | `agentic-qe` (binary: `aqe`) | Security SAST, coverage, quality gates |
+| **Claude Code** | `@anthropic-ai/claude-code` | AI-powered development CLI; host for the 55 `@qe-...` agents |
+| **Agentic QE** | `agentic-qe` (binary: `aqe`) | Coverage gaps, complexity, dependency graph, quality gate, URL safety |
+| **TypeScript** | `typescript` | Required by `aqe code index` for AST analysis |
 | **GitHub CLI** | `gh` | PR / repo workflows |
 | **tmux** | apt | Terminal multiplexing |
 | **ccusage** | `ccusage` | Token spend visibility |
@@ -75,18 +76,17 @@ The container is the same Debian 12 base as the [`qe-ruvector`](https://github.c
 It also seeds workshop aliases into `~/.zshrc` and `~/.bashrc`:
 
 ```bash
-aqe-sec PATH      # aqe security --sast --target PATH
-aqe-url URL       # aqe security --url-validate URL
+aqe-cov PATH      # aqe coverage --gaps --threshold 80 --target PATH
 aqe-complex PATH  # aqe code complexity PATH
 aqe-deps PATH     # aqe code deps PATH
-aqe-cov           # aqe coverage
 aqe-gate          # aqe quality --gate
-aqe-gen FILE      # aqe test generate FILE
-aqe-run FILE      # aqe test execute FILE
+aqe-url URL       # aqe security --url-validate URL
 
 ws | samples | buggy   # cd to workshop locations
 cc                     # alias for `claude`
 ```
+
+> The aliases reflect commands that **work today**. We deliberately don't alias `aqe security --sast`, `aqe test generate`, or `aqe code search` — see `workshop-samples/README.md` for why.
 
 The full report (success/failure per tool, manual install instructions for failures) is written to `.devcontainer/installation-report.md` after setup.
 
@@ -98,16 +98,16 @@ The full report (success/failure per tool, manual install instructions for failu
 A short walkthrough of how AQE agents are structured. No hands-on yet.
 
 ### Part 2 — TEST (30 min) → `workshop-samples/buggy-samples/`
-Each file contains an intentional bug. You'll review manually first, then run an agent, then compare findings:
+Each file contains an intentional bug. The flow is: **AQE flags the *shape* of the problem first, then a specialist Claude Code agent finds the actual bug.**
 
-| File | Bug | Tool |
-|------|-----|------|
-| `01-api-auth-bypass.ts` | Debug flag bypasses auth | `aqe security --sast` |
-| `02-tests-wrong-behavior.ts` | Tests pass but don't verify | Claude Code `/verify-tests` |
-| `03-spec-contradictions.md` | 11 contradictions in requirements | Claude Code `/spec-check` |
-| `04-hallucinated-api.ts` | AI-generated code with fake APIs | Claude Code `/hallucination-check` |
+| File | Bug | AQE preface | Specialist agent |
+|------|-----|-------------|------------------|
+| `01-api-auth-bypass.ts` | Debug flag bypasses auth | `aqe coverage --gaps` flags `missing-security-check: Cover auth bypass` | `@qe-security-scanner` |
+| `02-tests-wrong-behavior.ts` | Tests pass but don't verify | `aqe code complexity` shows cyclomatic 16 | `@qe-mutation-tester` |
+| `03-spec-contradictions.md` | 11 contradictions in requirements | (none — pure requirements analysis) | `@qe-requirements-validator` |
+| `04-hallucinated-api.ts` | AI-generated code with fake APIs | `aqe code complexity` shows hotspots | `@qe-code-reviewer` |
 
-> **Why two tools?** Agentic QE (`aqe`) handles deterministic, scriptable checks — security SAST, coverage, quality gates, test generation. Tasks that need judgment (test-quality verification, spec contradictions, hallucination detection) we delegate to Claude Code with precise prompts. Both ship in this devcontainer.
+> **Why two tools?** AQE is deterministic and free — perfect for fast CI gates and pre-commit hooks. Claude Code agents reason about meaning. The pattern is **AQE narrows where to look, agents look**. You only pay token cost on the few files AQE flags. The `@qe-...` agents (55 of them) are installed by running `aqe init --auto --minimal` once at the workshop root.
 
 ### Part 3 — ORCHESTRATE (20 min) → `workshop-samples/integration-demos/`
 Four ways to wire these tools into a real workflow:

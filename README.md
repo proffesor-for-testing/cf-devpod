@@ -56,7 +56,6 @@ If you'd rather not use Codespaces:
 3. Open with DevPod / VS Code Dev Containers — it will detect `.devcontainer/devcontainer.json` and build the environment.
 4. Once inside the container, run `claude /login` as above.
 
-The container is the same Debian 12 base as the [`qe-ruvector`](https://github.com/proffesor-for-testing/qe-ruvector) devpod, so the experience matches your day-job setup.
 
 ---
 

@@ -25,8 +25,9 @@ pnpm-lock.yaml
 .aqe-quality-gate.md
 .aqe-report.md
 
-# DevContainer install report (regenerated each container build)
+# DevContainer install report + logs (regenerated each container build)
 .devcontainer/installation-report.md
+.devcontainer/install-logs/
 
 # Claude Code project state (only commit `.claude/commands/` if you ship slash
 # commands; ignore session/state files)

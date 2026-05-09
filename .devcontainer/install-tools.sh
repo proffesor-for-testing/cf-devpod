@@ -10,220 +10,287 @@
 #   - Agentic QE     (agentic-qe — the real package, NOT agentic-qe-fleet)
 #   - ccusage        (token spend visibility)
 #
-# Mirrors the structure of /Users/profa/qe-ruvector/.devcontainer/install-tools.sh:
-# tries without sudo first, falls back with sudo, writes a Markdown report.
+# Strategy:
+#   - apt installs use `sudo apt-get update` first, then `sudo apt-get install -y`
+#   - npm globals install to a USER-OWNED prefix ($HOME/.npm-global) so we
+#     never run npm as root (avoids postinstall failures where a package's
+#     postinstall script writes to $HOME and ends up in /root/.something
+#     where the vscode user can't read it later).
+#   - Every install writes its full output to .devcontainer/install-logs/<tool>.log
+#     and on failure the last 20 lines are pasted into installation-report.md
+#     so failures are debuggable instead of silent.
 # =============================================================================
 
-# Configure Git safe directories first
-echo "🔧 Configuring Git safe directories..."
-git config --global --add safe.directory '*' 2>/dev/null || true
-git config --global --add safe.directory /workspaces 2>/dev/null || true
-git config --global --add safe.directory /workspaces/* 2>/dev/null || true
-git config --global --add safe.directory /workspace 2>/dev/null || true
-echo "✅ Git safe directories configured"
+set -u   # error on unset vars; do NOT use -e — we want to continue past per-tool failures
 
-# Initialize report file
+# -----------------------------------------------------------------------------
+# Setup paths
+# -----------------------------------------------------------------------------
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 REPORT_FILE="$SCRIPT_DIR/installation-report.md"
+LOG_DIR="$SCRIPT_DIR/install-logs"
+mkdir -p "$LOG_DIR"
+
+# Initialize report
 {
     echo "# 📦 Craft 2026 Workshop — Installation Report"
     echo ""
     echo "**Generated on:** $(date)"
     echo ""
+    echo "**Logs:** [\`install-logs/\`](install-logs/) (per-tool stderr+stdout for debugging)"
+    echo ""
     echo "## 📊 Installation Summary"
     echo ""
 } > "$REPORT_FILE"
 
-# Track installation results
 declare -A INSTALL_STATUS
 declare -A INSTALL_NOTES
 
-command_exists() {
-    command -v "$1" >/dev/null 2>&1
-}
+command_exists() { command -v "$1" >/dev/null 2>&1; }
 
 record_status() {
-    local tool="$1"
-    local status="$2"
-    local note="$3"
-    INSTALL_STATUS["$tool"]="$status"
-    INSTALL_NOTES["$tool"]="$note"
+    INSTALL_STATUS["$1"]="$2"
+    INSTALL_NOTES["$1"]="$3"
 }
 
-try_install() {
-    local package="$1"
-    local install_cmd="$2"
-
-    echo "Attempting to install $package..."
-
-    if $install_cmd 2>/dev/null; then
-        echo "$package installed successfully without sudo"
-        return 0
-    fi
-
-    if command_exists sudo; then
-        echo "Retrying with sudo..."
-        if sudo $install_cmd 2>/dev/null; then
-            echo "$package installed successfully with sudo"
-            return 0
-        fi
-    fi
-
-    echo "Failed to install $package - continuing without it"
-    return 1
+# Print and append the last 20 lines of a log file as a collapsible section
+append_log_tail() {
+    local label="$1"
+    local log="$2"
+    [ -f "$log" ] || return 0
+    {
+        echo ""
+        echo "<details><summary>📄 ${label} install log (last 20 lines)</summary>"
+        echo ""
+        echo '```'
+        tail -20 "$log"
+        echo '```'
+        echo "</details>"
+        echo ""
+    } >> "$REPORT_FILE"
 }
 
+# -----------------------------------------------------------------------------
+# Git safe directories
+# -----------------------------------------------------------------------------
+echo "🔧 Configuring Git safe directories..."
+git config --global --add safe.directory '*' 2>/dev/null || true
+echo "✅ Git safe directories configured"
+
+# -----------------------------------------------------------------------------
+# User-level npm prefix — install all npm globals to $HOME/.npm-global
+# This is the single most important fix: never run `sudo npm install -g` because
+# package postinstall scripts running as root write to /root/.config/<pkg>/...
+# which the (non-root) vscode user can't read at runtime.
+# -----------------------------------------------------------------------------
+NPM_GLOBAL="$HOME/.npm-global"
+echo ""
+echo "📦 Configuring user-level npm global prefix at $NPM_GLOBAL"
+mkdir -p "$NPM_GLOBAL"
+if command_exists npm; then
+    npm config set prefix "$NPM_GLOBAL" 2>/dev/null || true
+    npm config set fund false 2>/dev/null || true
+    npm config set audit false 2>/dev/null || true
+fi
+export PATH="$NPM_GLOBAL/bin:$PATH"
+
+# Persist PATH for future shells
+NPM_PATH_LINE='export PATH="$HOME/.npm-global/bin:$PATH"'
+for rc in ~/.zshrc ~/.bashrc ~/.profile; do
+    [ -f "$rc" ] || continue
+    if ! grep -qF '.npm-global/bin' "$rc" 2>/dev/null; then
+        {
+            echo ""
+            echo "# Workshop: user-level npm globals on PATH"
+            echo "$NPM_PATH_LINE"
+        } >> "$rc"
+    fi
+done
+echo "✅ npm prefix configured (no sudo needed for global installs)"
+
+# -----------------------------------------------------------------------------
 # Platform detection
+# -----------------------------------------------------------------------------
 detect_platform() {
-    if [[ "$OSTYPE" == "msys" ]] || [[ "$OSTYPE" == "cygwin" ]] || grep -qi microsoft /proc/version 2>/dev/null; then
+    if [[ "${OSTYPE:-}" == "msys" ]] || [[ "${OSTYPE:-}" == "cygwin" ]] || grep -qi microsoft /proc/version 2>/dev/null; then
         echo "windows"
-    elif [[ "$OSTYPE" == "darwin"* ]]; then
+    elif [[ "${OSTYPE:-}" == "darwin"* ]]; then
         echo "macos"
     else
         echo "linux"
     fi
 }
-
 PLATFORM=$(detect_platform)
 
 # -----------------------------------------------------------------------------
-# tmux
+# apt helper — always sudo, always update first, capture full log
 # -----------------------------------------------------------------------------
+APT_UPDATED=0
+apt_install() {
+    local pkg="$1"
+    local log="$LOG_DIR/apt-${pkg}.log"
+    : > "$log"
+
+    if ! command_exists apt-get; then
+        echo "  apt-get not found"
+        return 2
+    fi
+
+    # Update once per script run
+    if [ "$APT_UPDATED" -eq 0 ]; then
+        echo "  Running apt-get update (one time)..."
+        if command_exists sudo; then
+            sudo apt-get update -qq >>"$log" 2>&1 || true
+        else
+            apt-get update -qq >>"$log" 2>&1 || true
+        fi
+        APT_UPDATED=1
+    fi
+
+    echo "  Installing $pkg via apt..."
+    if command_exists sudo; then
+        sudo DEBIAN_FRONTEND=noninteractive apt-get install -y "$pkg" >>"$log" 2>&1
+    else
+        DEBIAN_FRONTEND=noninteractive apt-get install -y "$pkg" >>"$log" 2>&1
+    fi
+}
+
+# -----------------------------------------------------------------------------
+# npm helper — install to user prefix, capture log, never sudo
+# -----------------------------------------------------------------------------
+npm_global_install() {
+    local pkg="$1"
+    local log="$LOG_DIR/npm-${pkg//[^a-zA-Z0-9]/_}.log"
+    : > "$log"
+
+    if ! command_exists npm; then
+        echo "  npm not found" >>"$log"
+        return 2
+    fi
+
+    echo "  npm install -g $pkg (to $NPM_GLOBAL)..."
+    npm install -g --no-fund --no-audit "$pkg" >>"$log" 2>&1
+}
+
+# -----------------------------------------------------------------------------
+# 1. tmux
+# -----------------------------------------------------------------------------
+echo ""
+echo "── 🖥️  tmux ──────────────────────────────────────────────────"
 if [ "$PLATFORM" == "windows" ]; then
-    echo "Windows environment detected - skipping tmux installation"
-    record_status "tmux" "⚠️ Skipped" "Not recommended on Windows - use Windows Terminal tabs instead"
-elif ! command_exists tmux; then
-    if command_exists apt-get; then
-        if try_install "tmux" "apt-get install -y tmux"; then
-            record_status "tmux" "✅ Success" "Installed via apt-get"
-        else
-            record_status "tmux" "❌ Failed" "Installation failed"
-        fi
-    elif command_exists yum; then
-        if try_install "tmux" "yum install -y tmux"; then
-            record_status "tmux" "✅ Success" "Installed via yum"
-        else
-            record_status "tmux" "❌ Failed" "Installation failed"
-        fi
-    elif command_exists brew; then
-        if try_install "tmux" "brew install tmux"; then
-            record_status "tmux" "✅ Success" "Installed via brew"
-        else
-            record_status "tmux" "❌ Failed" "Installation failed"
-        fi
-    else
-        record_status "tmux" "❌ Failed" "No supported package manager found"
-    fi
+    record_status "tmux" "⚠️ Skipped" "Not recommended on Windows — use Windows Terminal tabs"
+elif command_exists tmux; then
+    record_status "tmux" "✅ Already Installed" "Version: $(tmux -V 2>/dev/null || echo unknown)"
 else
-    record_status "tmux" "✅ Already Installed" "Version: $(tmux -V 2>/dev/null || echo 'unknown')"
+    if apt_install tmux; then
+        record_status "tmux" "✅ Success" "Installed via apt-get (with sudo)"
+    elif command_exists brew && brew install tmux >>"$LOG_DIR/apt-tmux.log" 2>&1; then
+        record_status "tmux" "✅ Success" "Installed via brew"
+    else
+        record_status "tmux" "❌ Failed" "See log tail below"
+    fi
 fi
 
 # -----------------------------------------------------------------------------
-# GitHub CLI
+# 2. GitHub CLI
 # -----------------------------------------------------------------------------
-if ! command_exists gh; then
-    if command_exists apt-get; then
-        echo "Installing GitHub CLI for Debian/Ubuntu..."
-        INSTALL_GH_DEB="(type -p wget >/dev/null || apt-get install wget -y) && \
-            wget -qO- https://cli.github.com/packages/githubcli-archive-keyring.gpg | tee /usr/share/keyrings/githubcli-archive-keyring.gpg > /dev/null && \
-            chmod go+r /usr/share/keyrings/githubcli-archive-keyring.gpg && \
-            echo 'deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main' | tee /etc/apt/sources.list.d/github-cli.list > /dev/null && \
-            apt-get update && \
-            apt-get install gh -y"
+echo ""
+echo "── 🐙 GitHub CLI ─────────────────────────────────────────────"
+if command_exists gh; then
+    record_status "gh" "✅ Already Installed" "Version: $(gh --version 2>/dev/null | head -n1 || echo unknown)"
+else
+    GH_LOG="$LOG_DIR/gh.log"
+    : > "$GH_LOG"
 
-        if bash -c "$INSTALL_GH_DEB" 2>/dev/null; then
+    if command_exists apt-get; then
+        if command_exists sudo; then
+            {
+                sudo apt-get install -y wget gnupg
+                wget -qO- https://cli.github.com/packages/githubcli-archive-keyring.gpg \
+                    | sudo tee /usr/share/keyrings/githubcli-archive-keyring.gpg >/dev/null
+                sudo chmod go+r /usr/share/keyrings/githubcli-archive-keyring.gpg
+                echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" \
+                    | sudo tee /etc/apt/sources.list.d/github-cli.list >/dev/null
+                sudo apt-get update -qq
+                sudo DEBIAN_FRONTEND=noninteractive apt-get install -y gh
+            } >>"$GH_LOG" 2>&1
+        fi
+        if command_exists gh; then
             record_status "gh" "✅ Success" "Installed via apt-get"
-        elif command_exists sudo && sudo bash -c "$INSTALL_GH_DEB" 2>/dev/null; then
-            record_status "gh" "✅ Success" "Installed via apt-get with sudo"
         else
-            record_status "gh" "❌ Failed" "Installation failed"
+            record_status "gh" "❌ Failed" "See log tail below"
         fi
-    elif command_exists brew; then
-        if try_install "gh" "brew install gh"; then
-            record_status "gh" "✅ Success" "Installed via brew"
-        else
-            record_status "gh" "❌ Failed" "Installation failed"
-        fi
+    elif command_exists brew && brew install gh >>"$GH_LOG" 2>&1; then
+        record_status "gh" "✅ Success" "Installed via brew"
     else
-        record_status "gh" "❌ Failed" "No supported package manager found"
+        record_status "gh" "❌ Failed" "No supported package manager"
     fi
-else
-    record_status "gh" "✅ Already Installed" "Version: $(gh --version 2>/dev/null | head -n1 || echo 'unknown')"
 fi
 
 # -----------------------------------------------------------------------------
-# Claude Code (@anthropic-ai/claude-code)
+# 3. Claude Code
 # -----------------------------------------------------------------------------
-if ! command_exists claude; then
-    if command_exists node && command_exists npm; then
-        echo "Installing claude-code via npm..."
-
-        if npm install -g @anthropic-ai/claude-code 2>/dev/null; then
-            record_status "claude-code" "✅ Success" "Installed via npm"
-        elif command_exists sudo && sudo npm install -g @anthropic-ai/claude-code 2>/dev/null; then
-            record_status "claude-code" "✅ Success" "Installed via npm with sudo"
-        else
-            record_status "claude-code" "❌ Failed" "npm install failed"
-        fi
+echo ""
+echo "── 🤖 Claude Code ────────────────────────────────────────────"
+if command_exists claude; then
+    record_status "claude-code" "✅ Already Installed" "Version: $(claude --version 2>/dev/null || echo unknown)"
+elif npm_global_install "@anthropic-ai/claude-code"; then
+    if command_exists claude; then
+        record_status "claude-code" "✅ Success" "Installed via npm (user prefix)"
     else
-        record_status "claude-code" "❌ Failed" "Node.js and npm are required"
+        record_status "claude-code" "⚠️ Partial" "Installed but \`claude\` not on PATH — restart shell"
     fi
 else
-    record_status "claude-code" "✅ Already Installed" "Version: $(claude --version 2>/dev/null || echo 'unknown')"
+    record_status "claude-code" "❌ Failed" "See log tail below"
 fi
 
 # -----------------------------------------------------------------------------
-# Agentic QE (the workshop's main tool — package name is agentic-qe)
+# 4. Agentic QE  (THE workshop tool — give it the most diagnostic care)
 # -----------------------------------------------------------------------------
-if ! command_exists aqe; then
-    if command_exists npm; then
-        echo "Installing agentic-qe via npm..."
-
-        if npm install -g agentic-qe 2>/dev/null; then
-            record_status "agentic-qe" "✅ Success" "Installed via npm"
-        elif command_exists sudo && sudo npm install -g agentic-qe 2>/dev/null; then
-            record_status "agentic-qe" "✅ Success" "Installed via npm with sudo"
-        else
-            record_status "agentic-qe" "❌ Failed" "npm install failed"
-        fi
+echo ""
+echo "── 🎯 Agentic QE ─────────────────────────────────────────────"
+if command_exists aqe; then
+    record_status "agentic-qe" "✅ Already Installed" "Version: $(aqe --version 2>/dev/null || echo unknown)"
+elif npm_global_install "agentic-qe"; then
+    # Verify the binary actually works after install
+    if command_exists aqe && aqe --version >/dev/null 2>&1; then
+        record_status "agentic-qe" "✅ Success" "Version: $(aqe --version 2>/dev/null)"
     else
-        record_status "agentic-qe" "❌ Failed" "npm not available - install Node.js first"
-    fi
-else
-    record_status "agentic-qe" "✅ Already Installed" "Version: $(aqe --version 2>/dev/null || echo 'unknown')"
-fi
-
-# -----------------------------------------------------------------------------
-# ccusage (token spend visibility — useful during workshop demos)
-# -----------------------------------------------------------------------------
-if command_exists npm; then
-    if npm list -g ccusage 2>/dev/null | grep -q "ccusage@"; then
-        CCUSAGE_VERSION=$(npm list -g ccusage 2>/dev/null | grep "ccusage@" | grep -oE '@[0-9a-z.-]+' || echo 'unknown')
-        record_status "ccusage" "✅ Already Installed" "Version: $CCUSAGE_VERSION"
-    else
-        echo "Installing ccusage via npm..."
-        if npm install -g ccusage 2>/dev/null; then
-            record_status "ccusage" "✅ Success" "Installed via npm"
-        elif command_exists sudo && sudo npm install -g ccusage 2>/dev/null; then
-            record_status "ccusage" "✅ Success" "Installed via npm with sudo"
+        # Sometimes the binary is in $NPM_GLOBAL/bin but PATH isn't refreshed yet
+        if [ -x "$NPM_GLOBAL/bin/aqe" ]; then
+            record_status "agentic-qe" "⚠️ Partial" "Installed at $NPM_GLOBAL/bin/aqe but not on PATH this shell — restart shell or run: source ~/.bashrc"
         else
-            record_status "ccusage" "❌ Failed" "npm install failed"
+            record_status "agentic-qe" "❌ Failed" "npm reported success but aqe binary not found"
         fi
     fi
 else
-    record_status "ccusage" "❌ Failed" "npm not available"
+    record_status "agentic-qe" "❌ Failed" "See log tail below"
 fi
 
 # -----------------------------------------------------------------------------
-# Project dependencies (if package.json exists at workspace root)
+# 5. ccusage
 # -----------------------------------------------------------------------------
+echo ""
+echo "── 📈 ccusage ────────────────────────────────────────────────"
+if command_exists ccusage; then
+    record_status "ccusage" "✅ Already Installed" "$(ccusage --version 2>/dev/null || echo installed)"
+elif npm_global_install "ccusage"; then
+    record_status "ccusage" "✅ Success" "Installed via npm"
+else
+    record_status "ccusage" "❌ Failed" "See log tail below"
+fi
+
+# -----------------------------------------------------------------------------
+# 6. Project deps (only if package.json at workspace root)
+# -----------------------------------------------------------------------------
+echo ""
+echo "── 📦 Project dependencies ──────────────────────────────────"
 if [ -f "$(pwd)/package.json" ]; then
-    echo ""
-    echo "📦 Installing project dependencies (npm install)..."
-    if npm install 2>/dev/null; then
+    PROJ_LOG="$LOG_DIR/project-deps.log"
+    if npm install --no-fund --no-audit >"$PROJ_LOG" 2>&1; then
         record_status "project-deps" "✅ Success" "npm install completed"
     else
-        record_status "project-deps" "⚠️ Skipped" "npm install failed — run manually if needed"
+        record_status "project-deps" "⚠️ Skipped" "npm install failed — see log"
     fi
 else
     record_status "project-deps" "ℹ️ N/A" "No package.json at workspace root"
@@ -271,7 +338,6 @@ alias buggy='\''cd "$(git rev-parse --show-toplevel 2>/dev/null || pwd)/workshop
 alias cc="claude"
 '
 
-# Append to zshrc and bashrc (idempotent — guard with marker)
 for rc in ~/.zshrc ~/.bashrc; do
     if [ -f "$rc" ] && ! grep -q "Craft 2026 Workshop Aliases" "$rc" 2>/dev/null; then
         echo "$WORKSHOP_ALIASES" >> "$rc"
@@ -280,14 +346,14 @@ for rc in ~/.zshrc ~/.bashrc; do
 done
 
 # -----------------------------------------------------------------------------
-# Git basic config (only if not already set)
+# Git basic config (idempotent)
 # -----------------------------------------------------------------------------
 git config --global init.defaultBranch main 2>/dev/null || true
 git config --global pull.rebase false 2>/dev/null || true
 git config --global core.autocrlf input 2>/dev/null || true
 
 # -----------------------------------------------------------------------------
-# Write report
+# Write summary table
 # -----------------------------------------------------------------------------
 {
     echo "| Tool | Status | Notes |"
@@ -301,59 +367,81 @@ git config --global core.autocrlf input 2>/dev/null || true
     echo ""
 } >> "$REPORT_FILE"
 
-# Failed-tool manual instructions
+# Append failure-specific log tails AND manual install instructions
 FAILED_ITEMS=0
 for tool in tmux gh claude-code agentic-qe ccusage; do
-    if [[ "${INSTALL_STATUS[$tool]}" == *"Failed"* ]]; then
+    if [[ "${INSTALL_STATUS[$tool]:-}" == *"Failed"* ]] || [[ "${INSTALL_STATUS[$tool]:-}" == *"Partial"* ]]; then
         ((FAILED_ITEMS++))
     fi
 done
 
-if [ $FAILED_ITEMS -gt 0 ]; then
-    {
-        echo "## ⚠️ Manual Installation Instructions"
-        echo ""
-        echo "Some tools failed to install automatically. Run these manually:"
-        echo ""
-        if [[ "${INSTALL_STATUS[tmux]}" == *"Failed"* ]]; then
-            echo "### tmux"
+if [ "$FAILED_ITEMS" -gt 0 ]; then
+    echo "## ⚠️ Failures — Diagnostics + Manual Recovery" >> "$REPORT_FILE"
+    echo "" >> "$REPORT_FILE"
+
+    if [[ "${INSTALL_STATUS[tmux]:-}" == *"Failed"* ]]; then
+        echo "### tmux" >> "$REPORT_FILE"
+        append_log_tail "tmux" "$LOG_DIR/apt-tmux.log"
+        {
+            echo "**Manual install:**"
             echo '```bash'
-            echo "sudo apt update && sudo apt install -y tmux   # Debian/Ubuntu"
-            echo "brew install tmux                              # macOS"
+            echo "sudo apt-get update && sudo apt-get install -y tmux   # Debian/Ubuntu"
+            echo "brew install tmux                                      # macOS"
             echo '```'
             echo ""
-        fi
-        if [[ "${INSTALL_STATUS[gh]}" == *"Failed"* ]]; then
-            echo "### GitHub CLI"
-            echo "See: https://github.com/cli/cli#installation"
-            echo ""
-        fi
-        if [[ "${INSTALL_STATUS[claude-code]}" == *"Failed"* ]]; then
-            echo "### Claude Code"
+        } >> "$REPORT_FILE"
+    fi
+
+    if [[ "${INSTALL_STATUS[gh]:-}" == *"Failed"* ]]; then
+        echo "### GitHub CLI" >> "$REPORT_FILE"
+        append_log_tail "gh" "$LOG_DIR/gh.log"
+        echo "**Manual:** see https://github.com/cli/cli#installation" >> "$REPORT_FILE"
+        echo "" >> "$REPORT_FILE"
+    fi
+
+    if [[ "${INSTALL_STATUS[claude-code]:-}" == *"Failed"* ]] || [[ "${INSTALL_STATUS[claude-code]:-}" == *"Partial"* ]]; then
+        echo "### Claude Code" >> "$REPORT_FILE"
+        append_log_tail "claude-code" "$LOG_DIR/npm-_anthropic_ai_claude_code.log"
+        {
+            echo "**Manual install (user-level, no sudo):**"
             echo '```bash'
+            echo "npm config set prefix \"\$HOME/.npm-global\""
+            echo "export PATH=\"\$HOME/.npm-global/bin:\$PATH\""
             echo "npm install -g @anthropic-ai/claude-code"
-            echo "# or, if permission errors:"
-            echo "sudo npm install -g @anthropic-ai/claude-code"
             echo '```'
             echo ""
-        fi
-        if [[ "${INSTALL_STATUS[agentic-qe]}" == *"Failed"* ]]; then
-            echo "### Agentic QE"
+        } >> "$REPORT_FILE"
+    fi
+
+    if [[ "${INSTALL_STATUS[agentic-qe]:-}" == *"Failed"* ]] || [[ "${INSTALL_STATUS[agentic-qe]:-}" == *"Partial"* ]]; then
+        echo "### Agentic QE" >> "$REPORT_FILE"
+        append_log_tail "agentic-qe" "$LOG_DIR/npm-agentic_qe.log"
+        {
+            echo "**Manual install (user-level, no sudo):**"
             echo '```bash'
+            echo "npm config set prefix \"\$HOME/.npm-global\""
+            echo "export PATH=\"\$HOME/.npm-global/bin:\$PATH\""
             echo "npm install -g agentic-qe"
-            echo "# or, if permission errors:"
-            echo "sudo npm install -g agentic-qe"
+            echo "aqe --version"
             echo '```'
             echo ""
-        fi
-        if [[ "${INSTALL_STATUS[ccusage]}" == *"Failed"* ]]; then
-            echo "### ccusage"
+            echo "**Workaround if global install still fails — use npx:**"
             echo '```bash'
-            echo "npm install -g ccusage"
+            echo "npx -y agentic-qe@latest --help"
+            echo "npx -y agentic-qe@latest security --sast --target ."
             echo '```'
             echo ""
-        fi
-    } >> "$REPORT_FILE"
+        } >> "$REPORT_FILE"
+    fi
+
+    if [[ "${INSTALL_STATUS[ccusage]:-}" == *"Failed"* ]]; then
+        echo "### ccusage" >> "$REPORT_FILE"
+        append_log_tail "ccusage" "$LOG_DIR/npm-ccusage.log"
+        echo '```bash' >> "$REPORT_FILE"
+        echo "npm install -g ccusage" >> "$REPORT_FILE"
+        echo '```' >> "$REPORT_FILE"
+        echo "" >> "$REPORT_FILE"
+    fi
 else
     {
         echo "## ✅ All Tools Successfully Installed!"
@@ -374,15 +462,18 @@ fi
 # -----------------------------------------------------------------------------
 echo ""
 echo "╔══════════════════════════════════════════════════════════════════╗"
-echo "║   ✅ Workshop environment ready                                  ║"
+echo "║   Workshop environment setup complete                            ║"
 echo "╚══════════════════════════════════════════════════════════════════╝"
 echo ""
 echo "  Node.js:     $(node --version 2>/dev/null || echo 'not installed')"
 echo "  npm:         $(npm --version 2>/dev/null || echo 'not installed')"
-echo "  Claude Code: $(command_exists claude && echo 'installed' || echo 'NOT installed')"
+echo "  Claude Code: $(command_exists claude && claude --version 2>/dev/null || echo 'NOT installed')"
 echo "  Agentic QE:  $(command_exists aqe && aqe --version 2>/dev/null || echo 'NOT installed')"
+echo "  GitHub CLI:  $(command_exists gh && gh --version 2>/dev/null | head -n1 || echo 'NOT installed')"
+echo "  tmux:        $(command_exists tmux && tmux -V 2>/dev/null || echo 'NOT installed')"
 echo ""
 echo "📋 Full report: cat .devcontainer/installation-report.md"
+echo "📂 Logs:        ls .devcontainer/install-logs/"
 echo ""
 echo "🔑 Next step — authenticate Claude Code:"
 echo "      claude /login"
@@ -390,3 +481,7 @@ echo ""
 echo "   (Use a Claude.ai Pro/Max subscription, or paste an API key from"
 echo "    https://console.anthropic.com/ when prompted.)"
 echo ""
+
+# IMPORTANT: exit success even if some tools failed — the postCreateCommand
+# should not block the codespace from starting.
+exit 0
